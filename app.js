@@ -7,7 +7,7 @@ app.get('/',function(req, res) {
 });
 app.use('/client',express.static(__dirname + '/client'));
 
-serv.listen(process.env.PORT || 2000);
+serv.listen(process.env.PORT || 2001);
 console.log("Server started.");
 
 var SOCKET_LIST = {};
@@ -46,9 +46,27 @@ walls.push({x:420,y:470,width:10,height:60});
 walls.push({x:570,y:530,width:10,height:60});
 
 
+const bulletLimit = 5;
+const hpLimit = 20;
+const allLimit = 20;
 
+function bonusParser(list){
+
+var bulletCounter = 0;
+var hpCounter = 0;
+var allCounter = 0;
+
+for (var obj in list) 
+{
+	allCounter++;
+	obj.type == 1 ? bulletCounter++ : hpCounter++;
+}
+
+return {'bulletCounter':bulletCounter,'hpCounter':hpCounter, 'allCounter' : allCounter};
+}
 
 var Bonus = function(id){
+
 	var self = {
 		id:id,
 		type:0,
@@ -56,9 +74,10 @@ var Bonus = function(id){
 		y:0,
 	}
 	self.init = function(){
+
 		self.type = Math.round(Math.random()*2);
 		if (self.type === 1){ // type = ammo
-			if(Math.floor(Math.random() * 100) < 10){ // zone 1
+			if(Math.random() < 0.33){ // zone 1
 				self.x = 151 + Math.floor(Math.random()*50);
 				self.y = 221 + Math.floor(Math.random()*150);
 			} else {// zone 2
@@ -272,10 +291,15 @@ io.sockets.on('connection', function(socket){
 setInterval(function(){
 	// bonus creation
 	if( Math.floor(Math.random() * 100) + 1 < 5){
-		id = Math.random();
-		var bonus = Bonus(id);
-		bonus.init();
-		BONUS_LIST[id] = bonus;
+
+		
+		if(bonusParser(BONUS_LIST).allCounter < allLimit){
+			id = Math.random();
+			var bonus = Bonus(id);
+			bonus.init();
+			BONUS_LIST[id] = bonus;
+		}
+		
 		//console.log('New bonus');
 		//console.log('Bonuses: ' + Object.keys(BONUS_LIST).length);
 	}
