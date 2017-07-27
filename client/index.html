@@ -1,0 +1,437 @@
+<head>
+	<title>dotGame</title>
+	<link rel="stylesheet" type="text/css" href="client/style.css">
+</head>
+
+<center>
+	<div id="joinDiv" style="height:150px;width:400px; border:1px solid #000000;">
+		Join the game
+		<table style="margin:10px;">
+			<tbody>
+				<tr>
+					<td style="width:30%;">
+						Your name:
+					</td>
+					<td>
+						<input id="joinDiv-username" type="text"></input><br>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Your team:
+					</td>
+					<td>
+						<input type="radio" name="team" id="teamAuto" value="auto" checked>auto balance
+						<input type="radio" name="team" id="teamRed" value="red">red
+						<input type="radio" name="team" id="teamBlue" value="blue">blue
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<button id="joinDiv-button">Join now!</button>
+		<div id="joinDiv-message"></div>	
+	</div>
+
+	<div id="gameDiv" style="display:none;">
+		<table>
+			<tbody>
+				<tr>
+					<td>
+						<canvas id="ctx" width="1000" height="600" style="border:1px solid #000000;"></canvas>
+					</td>
+					<td>
+						<div id="playersDiv" style="height:600px;width:200px; border:1px solid #000000;">	
+							<div id="hudDiv">
+								Kills:<br>
+								<div id="playerKillsDiv">&nbsp;</div>
+								Ammo:<br>
+								<div id="playerAmmoDiv">&nbsp;</div>
+								Hp:<br>
+								<div id="playerHpDiv">&nbsp;</div>
+							</div>
+							<hr>
+							<div id="teamRedDiv"></div>
+							<div id="teamBlueDiv"></div>
+							<hr>
+							<div id="chatDiv"></div>
+							<input id="chatInput" type="text" placeholder="Enter your message"></input><br>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</center>
+
+<script src="client/socket.io-1.4.5.js"></script>
+<script>
+
+window.onload = function(){
+
+	var Particle = function(x,y,angle){
+		var self = {
+			x:x,
+			y:y,
+			angle:angle,
+			spin:Math.random()*360,
+		}
+		return self;
+	}
+	
+	var Effect = function(id,type,x,y,color){
+		var self = {
+			id:id,
+			type:type,
+			x:x,
+			y:y,
+			color:color,
+			r:0,
+			g:0,
+			b:0,
+			a:1,
+			lifeTime:20,
+			speed:0,
+			particles:{},
+		}
+		self.init = function(){	
+			if (self.color === 'red'){
+				self.r = 255;
+				self.g = 0;
+				self.b = 0;
+			} else if (self.color === 'blue'){
+				self.r = 0;
+				self.g = 0;
+				self.b = 255;
+			} else if (self.color === 'green'){
+				self.r = 0;
+				self.g = 200;
+				self.b = 0;
+			} else if (self.color === 'orange'){
+				self.r = 255;
+				self.g = 127;
+				self.b = 0;
+			} else if (self.color === 'black'){
+				self.r = 0;
+				self.g = 0;
+				self.b = 0;
+			}
+				
+			var particleCount = 10;
+			if (self.type === 1){
+				particleCount = 18;
+			}
+			for (var i = 0; i < particleCount; i++) {
+				var particle = Particle(self.x,self.y,i*360/particleCount);
+				self.particles[i] = particle;
+			}
+			
+			if(self.type === 1 || self.type === 4){
+				self.speed = 5;
+			} else if (self.type === 2){
+				self.speed = 3;
+			} else if (self.type === 3){
+				self.speed = 2;
+			}
+		}
+		self.draw = function(){
+			for(var i in self.particles){
+				var particle = self.particles[i];
+				if(self.type === 1){
+					var angle = particle.angle * Math.PI/180;
+					ctx.strokeStyle = 'rgba(' + self.r + ',' + self.g + ',' + self.b + ',' + self.a + ')';
+					ctx.beginPath();
+					ctx.moveTo(particle.x, particle.y);
+					ctx.lineTo(particle.x + 7*Math.sin(angle), particle.y + 7*Math.cos(angle));
+					ctx.closePath();
+					ctx.stroke();
+				} else if (self.type === 2 || self.type === 3){
+					var angle = particle.angle * Math.PI/180;
+					ctx.strokeStyle = 'rgba(' + self.r + ',' + self.g + ',' + self.b + ',' + self.a + ')';
+					ctx.beginPath();
+					ctx.moveTo(particle.x, particle.y);
+					ctx.lineTo(particle.x + 4*Math.sin(angle), particle.y + 4*Math.cos(angle));
+					ctx.closePath();
+					ctx.stroke();
+				} else if (self.type === 4){
+					ctx.fillStyle = 'rgba(' + self.r + ',' + self.g + ',' + self.b + ',' + self.a + ')';
+					ctx.save();
+					ctx.translate(particle.x, particle.y); // change origin
+					ctx.rotate(particle.spin*Math.PI/180);
+					ctx.fillRect(-4,-4,8,8);
+					ctx.restore();
+				}
+			}
+		}
+		self.update = function(){
+			if (self.lifeTime > 0){
+				for(var i in self.particles){
+					var particle = self.particles[i];
+					var angle = particle.angle * Math.PI/180;
+					particle.x += Math.sin(angle) * self.speed;
+					particle.y += Math.cos(angle) * self.speed;
+					particle.spin += 5;
+				}
+				self.a *= 0.7;
+				self.speed *= 0.87;
+				self.lifeTime--;
+			} else {
+				delete EFFECTS_LIST[self.id];
+			}
+		}
+		return self;
+	}
+	
+	var EFFECTS_LIST = {};
+	
+	
+	
+	var joinDiv = document.getElementById("joinDiv");
+	var joinDivUsername = document.getElementById("joinDiv-username");
+	var joinDivTeamAuto = document.getElementById("teamAuto");
+	var joinDivTeamRed = document.getElementById("teamRed");
+	var joinDivTeamBlue = document.getElementById("teamBlue");
+	var joinDivButton = document.getElementById("joinDiv-button");
+	var joinDivMessage = document.getElementById("joinDiv-message");
+	var gameDiv = document.getElementById("gameDiv");
+	var playersDiv = document.getElementById("playersDiv");
+	var teamRedDiv = document.getElementById("teamRedDiv");
+	var teamBlueDiv = document.getElementById("teamBlueDiv");
+	var hudDiv = document.getElementById("hudDiv");
+	var playerKillsDiv = document.getElementById("playerKillsDiv");
+	var playerAmmoDiv = document.getElementById("playerAmmoDiv");
+	var playerHpDiv = document.getElementById("playerHpDiv");
+	var chatDiv = document.getElementById("chatDiv");
+	var chatInput = document.getElementById("chatInput");
+	var team = "";
+	var inGame = false;
+	
+	joinDivButton.onclick = function(){
+		joinDivMessage.innerHTML = "";
+		if(joinDivUsername.value === ""){
+			joinDivMessage.innerHTML += "Enter username. ";
+		} else {
+			if(joinDivUsername.value !== ""){
+				if (joinDivTeamRed.checked){
+					team = 'red';
+				} else if (joinDivTeamBlue.checked) {
+					team = 'blue';
+				} else {
+					team = 'auto';
+				}
+				joinDiv.style.display = 'none';
+				gameDiv.style.display = 'inline-block';
+				inGame = true;
+				socket.emit('playerJoined',{name:joinDivUsername.value,team:team});
+			}
+		}
+	}
+	
+	var WIDTH = 1000;
+	var HEIGHT = 600;
+	var selfId = null;
+	var map = null;
+	var ctx = document.getElementById("ctx").getContext("2d");
+	ctx.font = '30px Arial';
+
+	var socket = io();
+	
+	var mouseX = 0;
+	var mouseY = 0;
+	
+	var posX = 0;
+	var posY = 0;
+	var angle = 0;
+	 
+	
+	window.onbeforeunload = function() {
+		socket.disconnect(); 
+	}
+	
+	socket.on('initPack',function(data){
+		selfId = data.selfId;
+		map = data.walls;
+	});
+	
+	socket.on('updatePack',function(data){
+		var playerCount = 0;
+		for (var i in data.pack){
+			if (data.pack[i].inGame === true){
+				playerCount++;
+			}
+		}
+		if (playerCount === 1){
+			document.title = 'dotGame (' + playerCount + ' player)';
+		} else {
+			document.title = 'dotGame (' + playerCount + ' players)';
+		}
+		
+		ctx.clearRect(0,0,WIDTH,HEIGHT);
+		teamRedDiv.innerHTML = "<b>Team red:</b>";
+		teamBlueDiv.innerHTML = "<b>Team blue:</b>";
+		
+		// zones
+		ctx.fillStyle = '#ffbbbb'; // red area
+		ctx.fillRect(20,20,100,100);
+		ctx.fillStyle = '#bbbbff'; // blue area
+		ctx.fillRect(880,480,100,100);
+		ctx.fillStyle = '#bbffbb'; // hp zones
+		ctx.fillRect(20,480,100,100);
+		ctx.fillRect(880,20,100,100);
+		ctx.fillRect(430,260,140,80);
+		ctx.fillStyle = '#ffee99'; // ammo zones
+		ctx.fillStyle = '#ffee99'; // ammo zones
+		ctx.fillRect(150,220,60,160);
+		ctx.fillRect(790,220,60,160);
+		// map
+		ctx.fillStyle = '#666666';
+		for (var i in map){
+			var wall = map[i];
+			ctx.fillRect(wall.x,wall.y,wall.width,wall.height);
+		}
+		// bonuses
+		for(var i = 0; i < data.bonus_pack.length; i++) {
+			var bonus = data.bonus_pack[i];
+			if (bonus.type === 1){
+				ctx.fillStyle = '#ff8800';
+				ctx.beginPath();
+				ctx.arc(bonus.x+4.5,bonus.y+4.5,5,0,2*Math.PI);
+				ctx.fill();
+				ctx.fillStyle = '#ffffff';
+				ctx.fillRect(bonus.x+2.5,bonus.y+1,1,7);
+				ctx.fillRect(bonus.x+5.5,bonus.y+1,1,7);
+				
+			} else {
+				ctx.fillStyle = '#00cc00';
+				ctx.beginPath();
+				ctx.arc(bonus.x+4.5,bonus.y+4.5,5,0,2*Math.PI);
+				ctx.fill();
+				ctx.fillStyle = '#ffffff';
+				ctx.fillStyle = '#ffffff';
+				ctx.fillRect(bonus.x+1,bonus.y+4,7,1);
+				ctx.fillRect(bonus.x+4,bonus.y+1,1,7);
+			}
+		}
+		// players
+		for(var i = 0; i < data.pack.length; i++) {
+			var isMe = "";
+			ctx.fillStyle = data.pack[i].team;
+			ctx.strokeStyle = data.pack[i].team;
+			ctx.beginPath();
+			ctx.arc(data.pack[i].x,data.pack[i].y,7,0,2*Math.PI);
+			// player's gun
+			var angle = data.pack[i].angle * Math.PI/180;
+			ctx.moveTo(data.pack[i].x, data.pack[i].y);
+			ctx.lineTo(data.pack[i].x + 12*Math.cos(angle), data.pack[i].y + 12*Math.sin(angle));
+			ctx.stroke();
+			// player's dot
+			if(data.pack[i].id === selfId) {
+				isMe = "[me]";
+				posX = data.pack[i].x;
+				posY = data.pack[i].y;
+				angle = data.pack[i].angle;
+				angle = data.pack[i].angle;
+				ctx.fill();
+				// stats on hud
+				playerKillsDiv.innerHTML = data.pack[i].score;
+				//playerAmmoDiv.innerHTML = data.pack[i].ammo;
+				playerAmmoDiv.style.width = data.pack[i].ammo + '%';
+				//playerHpDiv.innerHTML = data.pack[i].hp;
+				playerHpDiv.style.width = data.pack[i].hp + '%';
+			} else {
+				ctx.stroke();
+			}
+			ctx.closePath();
+			// team members
+			var divStyle = '';
+			if(data.pack[i].dead === true){
+				divStyle = 'style="color:#888888;text-decoration:line-through"';
+			}
+			if(data.pack[i].team === 'red'){
+				teamRedDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[i].name + ' (' + data.pack[i].score + ') ' + isMe + '</div>';
+			} else {
+				teamBlueDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[i].name + ' (' + data.pack[i].score + ') ' + isMe + '</div>';
+			}
+		}
+		// bullets
+		for(var i = 0; i < data.bullets_pack.length; i++) {
+			var bullet = data.bullets_pack[i];
+			var angle = bullet.angle * Math.PI/180;
+			ctx.strokeStyle = bullet.color;
+			ctx.beginPath();
+			ctx.moveTo(bullet.x, bullet.y);
+			ctx.lineTo(bullet.x + 5*Math.cos(angle), bullet.y + 5*Math.sin(angle));
+			ctx.closePath();
+			ctx.stroke();
+		}
+		
+		// effects
+		for(var i in EFFECTS_LIST){
+			var effect = EFFECTS_LIST[i];
+			effect.draw();
+			effect.update();
+		}
+	});
+	
+	socket.on('chatMessageToDisplay',function(data){
+		chatDiv.innerHTML += '<div>' + data + '</div>';
+		chatDiv.scrollTop = chatDiv.scrollHeight;
+	});
+	
+	socket.on('patricleEffect',function(data){
+		var id = Math.random();
+		var effect = Effect(id, data.type, data.x, data.y, data.color);
+		effect.init();
+		EFFECTS_LIST[id] = effect;
+		console.log('Effects: ' + Object.keys(EFFECTS_LIST).length);
+	});
+	
+	document.onkeydown = function(event){
+		if(inGame){
+			if(event.keyCode === 68 || event.keyCode === 70) // d
+				socket.emit('keyPress',{inputId:'right',state:true});
+			else if(event.keyCode === 83) // s
+				socket.emit('keyPress',{inputId:'down',state:true});
+			else if(event.keyCode === 65) // a
+				socket.emit('keyPress',{inputId:'left',state:true});
+			else if(event.keyCode === 87) // w
+				socket.emit('keyPress',{inputId:'up',state:true});
+		}
+	}
+	document.onkeyup = function(event){
+		if(inGame){
+			if(event.keyCode === 68 || event.keyCode === 70) // d
+				socket.emit('keyPress',{inputId:'right',state:false});
+			else if(event.keyCode === 83) // s
+				socket.emit('keyPress',{inputId:'down',state:false});
+			else if(event.keyCode === 65) // a
+				socket.emit('keyPress',{inputId:'left',state:false});
+			else if(event.keyCode === 87) // w
+				socket.emit('keyPress',{inputId:'up',state:false});
+		}
+	}
+	document.onmousemove = function(event){
+		if(inGame){
+			mouseX = event.pageX - gameDiv.offsetLeft;
+			mouseY = event.pageY - gameDiv.offsetTop;
+			var angle = Math.atan2(mouseY - posY, mouseX - posX) * 180 / Math.PI;
+			socket.emit('keyPress',{inputId:'angle',angle});
+		}
+	}
+	document.onmousedown = function(event){
+		mouseX = event.pageX - gameDiv.offsetLeft;
+		mouseY = event.pageY - gameDiv.offsetTop;
+		if(inGame && mouseX > 0 && mouseX < 1000 && mouseY > 0 && mouseY < 600){
+			socket.emit('keyPress',{inputId:'click'});
+		}
+	}
+	
+	chatInput.onkeyup = function(e){
+		if(e.keyCode === 13){
+			socket.emit('chatMessage',{id:selfId,message:chatInput.value});
+			chatInput.value = '';
+		}
+	};
+
+		printf("%ld is not prime ", n);
+}	
+</script>

@@ -1,2 +1,2 @@
 # dot-game
-Nodejs game
+Simple 2D multiplayer shooter build on Node.js
