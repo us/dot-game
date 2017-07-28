@@ -1,0 +1,127 @@
+<head>
+	<title>dotGame</title>
+</head>
+
+<center>
+	<div id="gameDiv">
+		<table>
+			<tbody>
+				<tr>
+					<td>
+						<canvas id="ctx" width="1000" height="600" style="border:1px solid #000000;"></canvas>
+					</td>
+					<td>
+						<div id="playersDiv" style="height:600px;width:200px; border:1px solid #000000;">	
+							<div id="hudDiv">
+								Kills:<br>
+								<div id="playerKillsDiv">&nbsp;</div>
+								Ammo:<br>
+								<div id="playerAmmoDiv">&nbsp;</div>
+								Hp:<br>
+								<div id="playerHpDiv">&nbsp;</div>
+							</div>
+							<hr>
+							<div id="teamRedDiv"></div>
+							<div id="teamBlueDiv"></div>
+							<hr>
+							<div id="chatDiv"></div>
+							<input id="chatInput" type="text" placeholder="Enter your message"></input><br>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</center>
+
+<script>
+	var gameDiv = document.getElementById("gameDiv");
+	var ctx = document.getElementById("ctx").getContext("2d");
+
+	var mouseX = 0;
+	var mouseY = 0;
+
+	var WIDTH = 1000;
+	var HEIGHT = 600;
+
+	var oldmouseX = 0;
+	var oldmouseY = 0;
+
+	var isDown = false;
+
+	var wallString = '[{"x1":252,"y1":74,"x2":392,"y2":74},{"x1":392,"y1":72,"x2":394,"y2":214},{"x1":394,"y1":214,"x2":246,"y2":214},{"x1":250,"y1":214,"x2":250,"y2":72},{"x1":250,"y1":326,"x2":394,"y2":324},{"x1":394,"y1":324,"x2":392,"y2":474},{"x1":238,"y1":468,"x2":238,"y2":468},{"x1":246,"y1":472,"x2":246,"y2":322},{"x1":248,"y1":474,"x2":394,"y2":474},{"x1":622,"y1":64,"x2":620,"y2":208},{"x1":620,"y1":206,"x2":754,"y2":208},{"x1":754,"y1":208,"x2":754,"y2":56},{"x1":754,"y1":60,"x2":618,"y2":60},{"x1":614,"y1":334,"x2":614,"y2":470},{"x1":614,"y1":470,"x2":762,"y2":470},{"x1":762,"y1":470,"x2":760,"y2":332},{"x1":760,"y1":332,"x2":614,"y2":332},{"x1":8,"y1":290,"x2":124,"y2":290},{"x1":874,"y1":300,"x2":994,"y2":300},{"x1":896,"y1":274,"x2":896,"y2":274},{"x1":502,"y1":6,"x2":502,"y2":166},{"x1":516,"y1":448,"x2":518,"y2":600}]';
+
+	var walls = JSON.parse(wallString);
+
+	function init()
+	{
+		ctx.fillStyle = '#ffbbbb'; // red area
+		ctx.fillRect(20,20,100,100);
+		ctx.fillStyle = '#bbbbff'; // blue area
+		ctx.fillRect(880,480,100,100);
+		ctx.fillStyle = '#bbffbb'; // hp zones
+		ctx.fillRect(20,480,100,100);
+		ctx.fillRect(880,20,100,100);
+		ctx.fillRect(430,260,140,80);
+		ctx.fillStyle = '#ffee99'; // ammo zones
+		ctx.fillStyle = '#ffee99'; // ammo zones
+		ctx.fillRect(150,220,60,160);
+		ctx.fillRect(790,220,60,160);
+	}
+
+
+	function clearAndDraw(){
+		ctx.clearRect(0,0,WIDTH,HEIGHT);
+
+		for (var i = 0; i < walls.length; i++) {
+			
+			lineDrawer(walls[i].x1,walls[i].y1,walls[i].x2,walls[i].y2,10);
+		};
+
+		init();
+	}
+
+	function lineDrawer(x1,y1,x2,y2,width)
+	{
+		ctx.beginPath();
+		ctx.lineWidth=width;
+		ctx.moveTo(x1,y1);
+		ctx.lineTo(x2,y2);
+		ctx.stroke();
+	}
+
+	document.onmousedown = function(event){
+
+		isDown = true;
+
+		oldmouseX = event.pageX - gameDiv.offsetLeft - 200;
+		oldmouseY = event.pageY - gameDiv.offsetTop;
+	}
+
+
+	document.onmousemove = function(event){
+
+		mouseX = event.pageX - gameDiv.offsetLeft - 200;
+		mouseY = event.pageY - gameDiv.offsetTop;
+
+		if(isDown){
+
+			clearAndDraw();
+			lineDrawer(oldmouseX,oldmouseY,mouseX,mouseY,10);
+		}
+	}
+
+
+	document.onmouseup = function(event){
+
+		isDown = false;
+
+		mouseX = event.pageX - gameDiv.offsetLeft - 200;
+		mouseY = event.pageY - gameDiv.offsetTop;
+
+		walls[walls.length] = {'x1':oldmouseX,'y1':oldmouseY, 'x2':mouseX , 'y2':mouseY};
+	}
+
+	init();
+	clearAndDraw();
+</script>
