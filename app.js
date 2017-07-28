@@ -462,28 +462,27 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 		var player = PLAYER_LIST[i];
 		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
 		if (d < 10){
-			for (var i in PLAYER_LIST) {
-				if (PLAYER_LIST[i].id != parentId) {
-					PLAYER_LIST[i].hp -= 60;
-				}
-			}
-			if(PLAYER_LIST[i].hp <= 0){
-				PLAYER_LIST[i].hp = 100;
-				PLAYER_LIST[i].ammo = 100;
-				PLAYER_LIST[parentId].score++;
-				player.dead = true;
-				player.respawnCounter = 100;
-				player.x = -20;
-				player.y = -20;
-				
-				for(var i in SOCKET_LIST){
-					var socket = SOCKET_LIST[i];
-					socket.emit('patricleEffect',{type:1,x:knifeX,y:knifeY,color:player.team});
-				}
-			} else {
-				for(var i in SOCKET_LIST){
-					var socket = SOCKET_LIST[i];
-					socket.emit('patricleEffect',{type:2,x:knifeX,y:knifeY,color:player.team});
+			if (PLAYER_LIST[i].id != parentId) {
+				PLAYER_LIST[i].hp -= 60;
+
+				if(PLAYER_LIST[i].hp <= 0){
+					PLAYER_LIST[i].hp = 100;
+					PLAYER_LIST[i].ammo = 100;
+					PLAYER_LIST[parentId].score++;
+					player.dead = true;
+					player.respawnCounter = 100;
+					player.x = -20;
+					player.y = -20;
+						
+					for(var i in SOCKET_LIST){
+						var socket = SOCKET_LIST[i];
+						socket.emit('patricleEffect',{type:1,x:knifeX,y:knifeY,color:player.team});
+					}
+				} else {
+					for(var i in SOCKET_LIST){
+						var socket = SOCKET_LIST[i];
+						socket.emit('patricleEffect',{type:2,x:knifeX,y:knifeY,color:player.team});
+					}
 				}
 			}
 			return true;
