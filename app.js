@@ -436,7 +436,7 @@ var isSomeoneHit = function(bulletX,bulletY,parentId) {
 		var player = PLAYER_LIST[i];
 		var d = Math.sqrt( (bulletX-player.x)*(bulletX-player.x) + (bulletY-player.y)*(bulletY-player.y) );
 		if (d < 7){
-			PLAYER_LIST[i].hp -= 40;
+			PLAYER_LIST[i].hp -= 50;
 			if(PLAYER_LIST[i].hp <= 0){
 				PLAYER_LIST[i].hp = 100;
 				PLAYER_LIST[i].ammo = 100;
@@ -463,33 +463,6 @@ var isSomeoneHit = function(bulletX,bulletY,parentId) {
 
 var isSomeoneStab = function(knifeX,knifeY,parentId) {
 	for (var i in PLAYER_LIST){
-		var player = PLAYER_LIST[i];
-		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
-		if (d < 50){
-			if ((player.id != PLAYER_LIST[parentId].id) && (player.team != PLAYER_LIST[parentId].team)) {
-				player.hp -= 60;
-
-				if(player.hp <= 0){
-					player.hp = 100;
-					player.ammo = 100;
-					PLAYER_LIST[parentId].score++;
-					player.dead = true;
-					player.respawnCounter = 100;
-					player.x = -20;
-					player.y = -20;
-						
-					for(var i in SOCKET_LIST){
-						var socket = SOCKET_LIST[i];
-						socket.emit('patricleEffect',{type:1,x:knifeX,y:knifeY,color:player.team});
-					}
-				} else {
-					for(var i in SOCKET_LIST){
-						var socket = SOCKET_LIST[i];
-						socket.emit('patricleEffect',{type:2,x:knifeX,y:knifeY,color:player.team});
-					}
-				}
-			}
-			return true;
-		}
+		console.log(i.name)
 	}
 }
