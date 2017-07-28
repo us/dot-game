@@ -476,12 +476,12 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 				
 				for(var i in SOCKET_LIST){
 					var socket = SOCKET_LIST[i];
-					socket.emit('patricleEffect',{type:1,x:knife,y:knife,color:player.team});
+					socket.emit('patricleEffect',{type:1,x:knifeX,y:knifeY,color:player.team});
 				}
 			} else {
 				for(var i in SOCKET_LIST){
 					var socket = SOCKET_LIST[i];
-					socket.emit('patricleEffect',{type:2,x:knife,y:knife,color:player.team});
+					socket.emit('patricleEffect',{type:2,x:knifeX,y:knifeY,color:player.team});
 				}
 			}
 			return true;
