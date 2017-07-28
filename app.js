@@ -464,7 +464,11 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 		var player = PLAYER_LIST[i];
 		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
 		if (d < 10){
-			PLAYER_LIST[i].hp -= 60;
+			for (var i in PLAYER_LIST) {
+				if (PLAYER_LIST[i] != parentId) {
+					PLAYER_LIST[i].hp -= 60;
+				}
+			}
 			if(PLAYER_LIST[i].hp <= 0){
 				PLAYER_LIST[i].hp = 100;
 				PLAYER_LIST[i].ammo = 100;
