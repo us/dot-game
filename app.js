@@ -259,13 +259,17 @@ io.sockets.on('connection', function(socket){
 				player.pressingDown = data.state;
 			else if(data.inputId === 'angle')
 				player.angle = data.angle;
-			else if(data.inputId === 'click' && player.ammo > 0){
-				player.ammo -= 5;
-				var id = Math.random();
-				var bullet = Bullet(id,player.x,player.y,player.angle,player.id);
-				var knife = Knife(id,player.x,player.y,player.id);
-				bullet.updatePosition();
-				BULLET_LIST[id] = bullet;
+			else if(data.inputId === 'click'){
+				if (player.ammo > 0) {
+					player.ammo -= 5;
+					var id = Math.random();
+					var bullet = Bullet(id,player.x,player.y,player.angle,player.id);
+					var knife = Knife(id,player.x,player.y,player.id);
+					bullet.updatePosition();
+					BULLET_LIST[id] = bullet;
+				} else {
+					var knife = Knife(id,player.x,player.y,player.id);
+				}
 			}
 		}
 	});
@@ -461,7 +465,7 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 	for (var i in PLAYER_LIST){
 		var player = PLAYER_LIST[i];
 		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
-		if (d < 30){
+		if (d < 50){
 			if (player.id != PLAYER_LIST[parentId].id) {
 				player.hp -= 60;
 
