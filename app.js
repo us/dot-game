@@ -263,11 +263,9 @@ io.sockets.on('connection', function(socket){
 				player.ammo -= 5;
 				var id = Math.random();
 				var bullet = Bullet(id,player.x,player.y,player.angle,player.id);
+				var knife = Knife(id,player.x,player.y,player.id);
 				bullet.updatePosition();
 				BULLET_LIST[id] = bullet;
-			} else if (data.inputId === "clickRight") {
-				var id = Math.random();
-				var knife = Knife(id,player.x,player.y,player.id);
 			}
 		}
 	});
@@ -465,7 +463,7 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
 		if (d < 10){
 			for (var i in PLAYER_LIST) {
-				if (PLAYER_LIST[i] != PLAYER_LIST[parentId]) {
+				if (PLAYER_LIST[i].id != parentId) {
 					PLAYER_LIST[i].hp -= 60;
 				}
 			}
