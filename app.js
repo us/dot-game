@@ -265,6 +265,9 @@ io.sockets.on('connection', function(socket){
 				var bullet = Bullet(id,player.x,player.y,player.angle,player.id);
 				bullet.updatePosition();
 				BULLET_LIST[id] = bullet;
+			} else if (data.inputId === "clickRight") {
+				var id = Math.random();
+				var knife = Knife(id,player.x,player.y,player.id);
 			}
 		}
 	});
@@ -473,12 +476,12 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 				
 				for(var i in SOCKET_LIST){
 					var socket = SOCKET_LIST[i];
-					socket.emit('patricleEffect',{type:1,x:bulletX,y:bulletY,color:player.team});
+					socket.emit('patricleEffect',{type:1,x:knife,y:knife,color:player.team});
 				}
 			} else {
 				for(var i in SOCKET_LIST){
 					var socket = SOCKET_LIST[i];
-					socket.emit('patricleEffect',{type:2,x:bulletX,y:bulletY,color:player.team});
+					socket.emit('patricleEffect',{type:2,x:knife,y:knife,color:player.team});
 				}
 			}
 			return true;

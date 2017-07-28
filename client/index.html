@@ -425,7 +425,7 @@ window.onload = function(){
 		mouseX = event.pageX - gameDiv.offsetLeft;
 		mouseY = event.pageY - gameDiv.offsetTop;
 		if(inGame && mouseX > 0 && mouseX < 1000 && mouseY > 0 && mouseY < 600){
-			socket.emit('keyPress',{inputId:'click'});
+			socket.emit('keyPress',{inputId:'clickRight'});
 		}
 	}
 	
