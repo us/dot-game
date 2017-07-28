@@ -403,13 +403,13 @@ window.onload = function(){
 	}
 	document.onkeyup = function(event){
 		if(inGame){
-			if(event.keyCode === 68 || event.keyCode === 70) // d
+			if((event.keyCode === 68 || event.keyCode === 70) && document.activeElement.id != "chatInput") // d
 				socket.emit('keyPress',{inputId:'right',state:false});
-			else if(event.keyCode === 83) // s
+			else if((event.keyCode === 83) && document.activeElement.id != "chatInput") // s
 				socket.emit('keyPress',{inputId:'down',state:false});
-			else if(event.keyCode === 65) // a
+			else if((event.keyCode === 65) && document.activeElement.id != "chatInput") // a
 				socket.emit('keyPress',{inputId:'left',state:false});
-			else if(event.keyCode === 87) // w
+			else if((event.keyCode === 87) && document.activeElement.id != "chatInput") // w
 				socket.emit('keyPress',{inputId:'up',state:false});
 		}
 	}
