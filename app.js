@@ -59,19 +59,17 @@ const bulletLimit = 15;
 const hpLimit = 10;
 const allLimit = 25;
 
-function bonusParser(){
+function bonusParser() {
+	var bulletCounter = 0;
+	var hpCounter = 0;
+	var allCounter = 0;
 
-var bulletCounter = 0;
-var hpCounter = 0;
-var allCounter = 0;
+	for (var obj in BONUS_LIST) {
+		allCounter++;
+		BONUS_LIST[obj].type == 1 ? bulletCounter++ : hpCounter++;
+	}
 
-for (var obj in BONUS_LIST) 
-{
-	allCounter++;
-	BONUS_LIST[obj].type == 1 ? bulletCounter++ : hpCounter++;
-}
-
-return {'bulletCounter':bulletCounter,'hpCounter':hpCounter, 'allCounter' : allCounter};
+	return {'bulletCounter':bulletCounter,'hpCounter':hpCounter, 'allCounter' : allCounter};
 }
 
 var Bonus = function(id,type){
@@ -161,6 +159,20 @@ var Bullet = function(id,x,y,angle,parentId){
 			delete BULLET_LIST[self.id];
 		}
 	}
+	return self;
+}
+
+var Knife = function(id,x,y,parentId) {
+	var self = {
+		id:id,
+		x:x,
+		y:y,
+		parentId:parentId,
+		color:PLAYER_LIST[parentId].team
+	}
+
+	isSomeoneStab(self.x,self.y,self.parentId)
+
 	return self;
 }
 
@@ -414,7 +426,7 @@ var isCollision = function(type, selfX, selfY){ // 1-right 2-down 3-left 4-up 5-
 	}
 }
 
-var isSomeoneHit = function(bulletX,bulletY,parentId){
+var isSomeoneHit = function(bulletX,bulletY,parentId) {
 	for (var i in PLAYER_LIST){
 		var player = PLAYER_LIST[i];
 		var d = Math.sqrt( (bulletX-player.x)*(bulletX-player.x) + (bulletY-player.y)*(bulletY-player.y) );
@@ -426,8 +438,38 @@ var isSomeoneHit = function(bulletX,bulletY,parentId){
 				PLAYER_LIST[parentId].score++;
 				player.dead = true;
 				player.respawnCounter = 100;
-				player.x = -10;
-				player.y = -10;
+				player.x = -20;
+				player.y = -20;
+				
+				for(var i in SOCKET_LIST){
+					var socket = SOCKET_LIST[i];
+					socket.emit('patricleEffect',{type:1,x:bulletX,y:bulletY,color:player.team});
+				}
+			} else {
+				for(var i in SOCKET_LIST){
+					var socket = SOCKET_LIST[i];
+					socket.emit('patricleEffect',{type:2,x:bulletX,y:bulletY,color:player.team});
+				}
+			}
+			return true;
+		}
+	}
+}
+
+var isSomeoneStab = function(knifeX,knifeY,parentId) {
+	for (var i in PLAYER_LIST){
+		var player = PLAYER_LIST[i];
+		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
+		if (d < 10){
+			PLAYER_LIST[i].hp -= 60;
+			if(PLAYER_LIST[i].hp <= 0){
+				PLAYER_LIST[i].hp = 100;
+				PLAYER_LIST[i].ammo = 100;
+				PLAYER_LIST[parentId].score++;
+				player.dead = true;
+				player.respawnCounter = 100;
+				player.x = -20;
+				player.y = -20;
 				
 				for(var i in SOCKET_LIST){
 					var socket = SOCKET_LIST[i];
