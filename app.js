@@ -191,8 +191,10 @@ var Player = function(id){
 		pressingLeft:false,
 		pressingUp:false,
 		pressingDown:false,
+		pressingShift: false,
 		ammo:100,
 		hp:100,
+		stamina: 100,
 		dead:false,
 		respawnCounter:0,
 	}
@@ -205,13 +207,13 @@ var Player = function(id){
 			self.y -= self.maxSpd;
 		if(self.pressingDown && isCollision(2,self.x,self.y) !== true)
 			self.y += self.maxSpd;
-			
-		
+
+
 		if(self.respawnCounter > 0){
 			self.respawnCounter--;
 		} else {
 			if (self.dead === true) {
-				if(self.team === 'red'){
+				if(self.team === '#E22D22'){
 					self.x = Math.random()*100+20;
 					self.y = Math.random()*100+20;
 				} else {
@@ -233,20 +235,20 @@ var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket){
 	socket.id = Math.random();
 	SOCKET_LIST[socket.id] = socket;
-	
+
 	var player = Player(socket.id);
 	PLAYER_LIST[socket.id] = player;
-	
+
 	socket.emit('initPack',{
 		selfId:socket.id,
 		walls:walls,
 	});
-	
+
 	socket.on('disconnect',function(){
 		delete SOCKET_LIST[socket.id];
 		delete PLAYER_LIST[socket.id];
 	});
-	
+
 	socket.on('keyPress',function(data){
 		if(player.dead === false){
 			if(data.inputId === 'left')
@@ -257,6 +259,13 @@ io.sockets.on('connection', function(socket){
 				player.pressingUp = data.state;
 			else if(data.inputId === 'down')
 				player.pressingDown = data.state;
+			else if(data.inputId === 'shift' && data.state === true)
+				if(player.stamina > 5) {
+					player.maxSpd = 6;
+					player.stamina -= 100;
+				} else { player.maxSped = 4 }
+			else if(data.inputId === 'shift' && data.state === false)
+				player.maxSpd = 4;
 			else if(data.inputId === 'angle')
 				player.angle = data.angle;
 			else if(data.inputId === 'click'){
@@ -273,30 +282,30 @@ io.sockets.on('connection', function(socket){
 			}
 		}
 	});
-	
+
 	socket.on('playerJoined',function(data){
 		player.name = data.name;
 		player.team = data.team;
 		player.inGame = true;
-		
+
 		if (data.team === 'auto'){
 			var redCount = 0;
 			var blueCount = 0;
 			for(var i in PLAYER_LIST){
-				if(PLAYER_LIST[i].team === 'red'){
+				if(PLAYER_LIST[i].team === '#E22D22'){
 					redCount++;
-				} else if(PLAYER_LIST[i].team === 'blue'){
+				} else if(PLAYER_LIST[i].team === '#324B9B'){
 					blueCount++;
 				}
 			}
 			if(blueCount > redCount){
-				player.team = 'red';
+				player.team = '#E22D22';
 			} else {
-				player.team = 'blue';
+				player.team = '#324B9B';
 			}
 		}
-		
-		if(player.team === 'red'){
+
+		if(player.team === '#E22D22'){
 			player.x = Math.random()*100+20;
 			player.y = Math.random()*100+20;
 		} else {
@@ -304,7 +313,7 @@ io.sockets.on('connection', function(socket){
 			player.y = Math.random()*100+480;
 		}
 	});
-	
+
 	socket.on('chatMessage',function(data){
 		var message = PLAYER_LIST[data.id].name + ': ' + data.message
 		for(var i in SOCKET_LIST){
@@ -326,9 +335,9 @@ setInterval(function(){
 
 			var bonus = Bonus(id,type);
 			bonus.init();
-			BONUS_LIST[id] = bonus;		
+			BONUS_LIST[id] = bonus;
 		}
-		
+
 		//console.log('New bonus');
 		//console.log('Bonuses: ' + Object.keys(BONUS_LIST).length);
 	}
@@ -349,9 +358,10 @@ setInterval(function(){
 			id:SOCKET_LIST[i].id,
 			ammo:player.ammo,
 			hp:player.hp,
+			stamina:player.stamina,
 			inGame:player.inGame,
 			dead:player.dead,
-		});	
+		});
 	}
 	for (var i in BULLET_LIST){
 		var bullet = BULLET_LIST[i];
@@ -383,45 +393,45 @@ var isCollision = function(type, selfX, selfY){ // 1-right 2-down 3-left 4-up 5-
 	var posY = selfY;
 	for (var i in walls){
 		var wall = walls[i];
-		
+
 		if (type === 1 &&
-			posX+7 + 4 > wall.x && 
-			posX-7 + 4 < wall.x + wall.width && 
+			posX+7 + 4 > wall.x &&
+			posX-7 + 4 < wall.x + wall.width &&
 			posY+7 > wall.y &&
 			posY-7 < wall.y + wall.height
 		){
 			return true;
 		}
 		else if (type === 2 &&
-			posX+7 > wall.x && 
-			posX-7 < wall.x + wall.width && 
+			posX+7 > wall.x &&
+			posX-7 < wall.x + wall.width &&
 			posY+7 + 4 > wall.y &&
 			posY-7 + 4 < wall.y + wall.height
 		){
 			return true;
 		}
 		else if (type === 3 &&
-			posX+7 - 4 > wall.x && 
-			posX-7 - 4 < wall.x + wall.width && 
+			posX+7 - 4 > wall.x &&
+			posX-7 - 4 < wall.x + wall.width &&
 			posY+7 > wall.y &&
 			posY-7 < wall.y + wall.height
 		){
 			return true;
 		}
 		else if (type === 4 &&
-			posX+7 > wall.x && 
-			posX-7 < wall.x + wall.width && 
+			posX+7 > wall.x &&
+			posX-7 < wall.x + wall.width &&
 			posY+7 - 4 > wall.y &&
 			posY-7 - 4 < wall.y + wall.height
 		){
 			return true;
 		}
 		else if (type === 5 &&
-			posX > wall.x && 
-			posX < wall.x + wall.width && 
+			posX > wall.x &&
+			posX < wall.x + wall.width &&
 			posY > wall.y &&
 			posY < wall.y + wall.height
-		){	
+		){
 			for(var i in SOCKET_LIST){
 				var socket = SOCKET_LIST[i];
 				socket.emit('patricleEffect',{type:3,x:posX,y:posY,color:'black'});
@@ -437,15 +447,17 @@ var isSomeoneHit = function(bulletX,bulletY,parentId) {
 		var d = Math.sqrt( (bulletX-player.x)*(bulletX-player.x) + (bulletY-player.y)*(bulletY-player.y) );
 		if (d < 7){
 			PLAYER_LIST[i].hp -= 50;
+			PLAYER_LIST[i].stamina -= 50;
 			if(PLAYER_LIST[i].hp <= 0){
 				PLAYER_LIST[i].hp = 100;
 				PLAYER_LIST[i].ammo = 100;
+				PLAYER_LIST[i].stamina = 100;
 				PLAYER_LIST[parentId].score++;
 				player.dead = true;
 				player.respawnCounter = 100;
 				player.x = -20;
 				player.y = -20;
-				
+
 				for(var i in SOCKET_LIST){
 					var socket = SOCKET_LIST[i];
 					socket.emit('patricleEffect',{type:1,x:bulletX,y:bulletY,color:player.team});
@@ -479,7 +491,7 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 				// 	player.respawnCounter = 100;
 				// 	player.x = -20;
 				// 	player.y = -20;
-						
+
 				// 	for(var i in SOCKET_LIST){
 				// 		var socket = SOCKET_LIST[i];
 				// 		socket.emit('patricleEffect',{type:1,x:knifeX,y:knifeY,color:player.team});
