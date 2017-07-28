@@ -16,35 +16,44 @@ var BULLET_LIST = {};
 var BONUS_LIST = {};
 
 var walls = [];
-walls.push({x:0,y:0,width:1000,height:10});
-walls.push({x:990,y:0,width:10,height:600});
-walls.push({x:0,y:590,width:1000,height:10});
-walls.push({x:0,y:0,width:10,height:600});
 
-walls.push({x:130,y:130,width:330,height:10});
-walls.push({x:540,y:130,width:370,height:10});
-walls.push({x:950,y:130,width:40,height:10});
-walls.push({x:90,y:460,width:370,height:10});
-walls.push({x:10,y:460,width:40,height:10});
-walls.push({x:540,y:460,width:330,height:10});
+switch(process.argv[2])
+{
+	case 'iceworld':
+		walls = JSON.parse('[{"x":242,"y":22,"width":10,"height":170},{"x":254,"y":28,"width":158,"height":10},{"x":408,"y":32,"width":10,"height":154},{"x":260,"y":192,"width":154,"height":10},{"x":250,"y":404,"width":10,"height":152},{"x":258,"y":552,"width":156,"height":10},{"x":260,"y":412,"width":160,"height":10},{"x":420,"y":416,"width":10,"height":148},{"x":608,"y":34,"width":176,"height":10},{"x":616,"y":44,"width":10,"height":142},{"x":616,"y":186,"width":170,"height":10},{"x":786,"y":38,"width":10,"height":154},{"x":622,"y":410,"width":10,"height":136},{"x":628,"y":416,"width":140,"height":10},{"x":632,"y":548,"width":150,"height":10},{"x":780,"y":416,"width":10,"height":140},{"x":268,"y":236,"width":10,"height":114},{"x":752,"y":244,"width":10,"height":106},{"x":894,"y":294,"width":108,"height":10},{"x":112,"y":306,"width":2,"height":10},{"x":6,"y":314,"width":112,"height":10}]');
+	break;
 
-walls.push({x:130,y:130,width:10,height:340});
-walls.push({x:860,y:130,width:10,height:340});
-walls.push({x:220,y:200,width:10,height:200});
-walls.push({x:770,y:200,width:10,height:200});
-walls.push({x:220,y:240,width:480,height:10});
-walls.push({x:300,y:350,width:480,height:10});
+	default:
+		walls.push({x:0,y:0,width:1000,height:10});
+		walls.push({x:990,y:0,width:10,height:600});
+		walls.push({x:0,y:590,width:1000,height:10});
+		walls.push({x:0,y:0,width:10,height:600});
 
-walls.push({x:150,y:70,width:10,height:60});
-walls.push({x:70,y:150,width:60,height:10});
-walls.push({x:870,y:440,width:60,height:10});
-walls.push({x:840,y:470,width:10,height:60});
+		walls.push({x:130,y:130,width:330,height:10});
+		walls.push({x:540,y:130,width:370,height:10});
+		walls.push({x:950,y:130,width:40,height:10});
+		walls.push({x:90,y:460,width:370,height:10});
+		walls.push({x:10,y:460,width:40,height:10});
+		walls.push({x:540,y:460,width:330,height:10});
 
-walls.push({x:420,y:10,width:10,height:60});
-walls.push({x:570,y:70,width:10,height:60});
-walls.push({x:420,y:470,width:10,height:60});
-walls.push({x:570,y:530,width:10,height:60});
+		walls.push({x:130,y:130,width:10,height:340});
+		walls.push({x:860,y:130,width:10,height:340});
+		walls.push({x:220,y:200,width:10,height:200});
+		walls.push({x:770,y:200,width:10,height:200});
+		walls.push({x:220,y:240,width:480,height:10});
+		walls.push({x:300,y:350,width:480,height:10});
 
+		walls.push({x:150,y:70,width:10,height:60});
+		walls.push({x:70,y:150,width:60,height:10});
+		walls.push({x:870,y:440,width:60,height:10});
+		walls.push({x:840,y:470,width:10,height:60});
+
+		walls.push({x:420,y:10,width:10,height:60});
+		walls.push({x:570,y:70,width:10,height:60});
+		walls.push({x:420,y:470,width:10,height:60});
+		walls.push({x:570,y:530,width:10,height:60});
+	break;
+}
 
 const bulletLimit = 15;
 const hpLimit = 10;
