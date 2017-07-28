@@ -466,7 +466,7 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 		var player = PLAYER_LIST[i];
 		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
 		if (d < 50){
-			if (player.id != PLAYER_LIST[parentId].id) {
+			if ((player.id != PLAYER_LIST[parentId].id) && (player.team != PLAYER_LIST[parentId].team)) {
 				player.hp -= 60;
 
 				if(player.hp <= 0){
