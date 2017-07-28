@@ -463,6 +463,7 @@ var isSomeoneHit = function(bulletX,bulletY,parentId) {
 
 var isSomeoneStab = function(knifeX,knifeY,parentId) {
 	for (var i in PLAYER_LIST){
-		console.log(i.name)
+		var player = PLAYER_LIST[i];
+		console.log(player.name)
 	}
 }
