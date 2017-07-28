@@ -462,12 +462,12 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 		var player = PLAYER_LIST[i];
 		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
 		if (d < 10){
-			if (PLAYER_LIST[i].id != parentId) {
-				PLAYER_LIST[i].hp -= 60;
+			if (player.id != PLAYER_LIST[parentId]) {
+				player.hp -= 60;
 
-				if(PLAYER_LIST[i].hp <= 0){
-					PLAYER_LIST[i].hp = 100;
-					PLAYER_LIST[i].ammo = 100;
+				if(player.hp <= 0){
+					player.hp = 100;
+					player.ammo = 100;
 					PLAYER_LIST[parentId].score++;
 					player.dead = true;
 					player.respawnCounter = 100;
@@ -489,15 +489,3 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
