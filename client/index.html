@@ -246,6 +246,10 @@ window.onload = function(){
 	window.onbeforeunload = function() {
 		socket.disconnect(); 
 	}
+
+	socket.on('disconnect', function () {
+		alert("Sunucu bağlantısı kapandı.");
+	});
 	
 	socket.on('initPack',function(data){
 		selfId = data.selfId;
