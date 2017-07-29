@@ -560,17 +560,17 @@ var segments = [
 			}
 		}
 		// players
-		for(var t = 0; t < data.pack.length; t++) {
+		for(var i = 0; i < data.pack.length; i++) {
 
 			var isMe = "";
-			ctx.fillStyle = data.pack[t].team;
-			ctx.strokeStyle = data.pack[t].team;
+			ctx.fillStyle = data.pack[i].team;
+			ctx.strokeStyle = data.pack[i].team;
 			ctx.beginPath();
-			ctx.arc(data.pack[t].x,data.pack[t].y,7,0,2*Math.PI);
+			ctx.arc(data.pack[i].x,data.pack[i].y,7,0,2*Math.PI);
 			// player's gun
-			var angle = data.pack[t].angle * Math.PI/180;
-			ctx.moveTo(data.pack[t].x, data.pack[t].y);
-			ctx.lineTo(data.pack[t].x + 12*Math.cos(angle), data.pack[t].y + 12*Math.sin(angle));
+			var angle = data.pack[i].angle * Math.PI/180;
+			ctx.moveTo(data.pack[i].x, data.pack[i].y);
+			ctx.lineTo(data.pack[i].x + 12*Math.cos(angle), data.pack[i].y + 12*Math.sin(angle));
 			ctx.stroke();
 			// player's dot
 
@@ -597,14 +597,14 @@ var segments = [
 			ctx.closePath();
 			// team members
 			var divStyle = '';
-			if(data.pack[t].dead === true){
+			if(data.pack[i].dead === true){
 				divStyle = 'style="color:#888888;text-decoration:line-through"';
 			}
 
 			if(data.pack[i].team === '#E22D22'){
 				teamRedDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[i].name + ' (' + data.pack[i].score + ') ' + isMe + '</div>';
 			} else {
-				teamBlueDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[t].name + ' (' + data.pack[t].score + ') ' + isMe + '</div>';
+				teamBlueDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[i].name + ' (' + data.pack[i].score + ') ' + isMe + '</div>';
 			}
 
 		}
