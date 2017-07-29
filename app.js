@@ -293,7 +293,8 @@ io.sockets.on('connection', function(socket){
 					bullet.updatePosition();
 					BULLET_LIST[id] = bullet;
 				}
-
+			}
+			else if(data.inputId === 'space'){
 				var knife = Knife(id,player.x,player.y,player.id);
 			}
 		}
