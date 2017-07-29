@@ -29,7 +29,7 @@
 			</tbody>
 		</table>
 		<button id="joinDiv-button">Join now!</button>
-		<div id="joinDiv-message"></div>	
+		<div id="joinDiv-message"></div>
 	</div>
 
 	<div id="gameDiv" style="display:none;">
@@ -40,7 +40,7 @@
 						<canvas id="ctx" width="1000" height="600" style="border:1px solid #000000;"></canvas>
 					</td>
 					<td>
-						<div id="playersDiv" style="height:600px;width:200px; border:1px solid #000000;">	
+						<div id="playersDiv" style="height:600px;width:200px; border:1px solid #000000;">
 							<div id="hudDiv">
 								Kills:<br>
 								<div id="playerKillsDiv">&nbsp;</div>
@@ -48,6 +48,8 @@
 								<div id="playerAmmoDiv">&nbsp;</div>
 								Hp:<br>
 								<div id="playerHpDiv">&nbsp;</div>
+								Stamina:<br>
+								<div id="playerStaminaDiv">&nbsp;</div>
 							</div>
 							<hr>
 							<div id="teamRedDiv"></div>
@@ -77,7 +79,7 @@ window.onload = function(){
 		}
 		return self;
 	}
-	
+
 	var Effect = function(id,type,x,y,color){
 		var self = {
 			id:id,
@@ -93,7 +95,7 @@ window.onload = function(){
 			speed:0,
 			particles:{},
 		}
-		self.init = function(){	
+		self.init = function(){
 			if (self.color === 'red'){
 				self.r = 255;
 				self.g = 0;
@@ -115,7 +117,7 @@ window.onload = function(){
 				self.g = 0;
 				self.b = 0;
 			}
-				
+
 			var particleCount = 10;
 			if (self.type === 1){
 				particleCount = 18;
@@ -124,7 +126,7 @@ window.onload = function(){
 				var particle = Particle(self.x,self.y,i*360/particleCount);
 				self.particles[i] = particle;
 			}
-			
+
 			if(self.type === 1 || self.type === 4){
 				self.speed = 5;
 			} else if (self.type === 2){
@@ -180,11 +182,11 @@ window.onload = function(){
 		}
 		return self;
 	}
-	
+
 	var EFFECTS_LIST = {};
-	
-	
-	
+
+
+
 	var joinDiv = document.getElementById("joinDiv");
 	var joinDivUsername = document.getElementById("joinDiv-username");
 	var joinDivTeamAuto = document.getElementById("teamAuto");
@@ -200,11 +202,12 @@ window.onload = function(){
 	var playerKillsDiv = document.getElementById("playerKillsDiv");
 	var playerAmmoDiv = document.getElementById("playerAmmoDiv");
 	var playerHpDiv = document.getElementById("playerHpDiv");
+	var playerStaminaDiv = document.getElementById("playerStaminaDiv");
 	var chatDiv = document.getElementById("chatDiv");
 	var chatInput = document.getElementById("chatInput");
 	var team = "";
 	var inGame = false;
-	
+
 	joinDivButton.onclick = function(){
 		joinDivMessage.innerHTML = "";
 		if(joinDivUsername.value === ""){
@@ -225,7 +228,7 @@ window.onload = function(){
 			}
 		}
 	}
-	
+
 	var WIDTH = 1000;
 	var HEIGHT = 600;
 	var selfId = null;
@@ -234,28 +237,28 @@ window.onload = function(){
 	ctx.font = '30px Arial';
 
 	var socket = io();
-	
+
 	var mouseX = 0;
 	var mouseY = 0;
-	
+
 	var posX = 0;
 	var posY = 0;
 	var angle = 0;
-	 
-	
+
+
 	window.onbeforeunload = function() {
-		socket.disconnect(); 
+		socket.disconnect();
 	}
 
 	socket.on('disconnect', function () {
 		alert("Sunucu bağlantısı kapandı.");
 	});
-	
+
 	socket.on('initPack',function(data){
 		selfId = data.selfId;
 		map = data.walls;
 	});
-	
+
 	socket.on('updatePack',function(data){
 		var playerCount = 0;
 		for (var i in data.pack){
@@ -268,26 +271,26 @@ window.onload = function(){
 		} else {
 			document.title = 'dotGame (' + playerCount + ' players)';
 		}
-		
+
 		ctx.clearRect(0,0,WIDTH,HEIGHT);
 		teamRedDiv.innerHTML = "<b>Team red:</b>";
 		teamBlueDiv.innerHTML = "<b>Team blue:</b>";
-		
+
 		// zones
-		ctx.fillStyle = '#ffbbbb'; // red area
+		ctx.fillStyle = 'transparent'; // red area
 		ctx.fillRect(20,20,100,100);
-		ctx.fillStyle = '#bbbbff'; // blue area
+		ctx.fillStyle = 'transparent'; // blue area
 		ctx.fillRect(880,480,100,100);
-		ctx.fillStyle = '#bbffbb'; // hp zones
+		ctx.fillStyle = 'transparent'; // hp zones
 		ctx.fillRect(20,480,100,100);
 		ctx.fillRect(880,20,100,100);
 		ctx.fillRect(430,260,140,80);
-		ctx.fillStyle = '#ffee99'; // ammo zones
-		ctx.fillStyle = '#ffee99'; // ammo zones
+		ctx.fillStyle = 'transparent'; // ammo zones
+		ctx.fillStyle = 'transparent'; // ammo zones
 		ctx.fillRect(150,220,60,160);
 		ctx.fillRect(790,220,60,160);
 		// map
-		ctx.fillStyle = '#666666';
+		ctx.fillStyle = '#aaaaaa';
 		for (var i in map){
 			var wall = map[i];
 			ctx.fillRect(wall.x,wall.y,wall.width,wall.height);
@@ -296,21 +299,21 @@ window.onload = function(){
 		for(var i = 0; i < data.bonus_pack.length; i++) {
 			var bonus = data.bonus_pack[i];
 			if (bonus.type === 1){
-				ctx.fillStyle = '#ff8800';
+				ctx.fillStyle = '#dddddd';
 				ctx.beginPath();
 				ctx.arc(bonus.x+4.5,bonus.y+4.5,5,0,2*Math.PI);
 				ctx.fill();
-				ctx.fillStyle = '#ffffff';
+				ctx.fillStyle = '#A6A3BA';
 				ctx.fillRect(bonus.x+2.5,bonus.y+1,1,7);
 				ctx.fillRect(bonus.x+5.5,bonus.y+1,1,7);
-				
+
 			} else {
-				ctx.fillStyle = '#00cc00';
+				ctx.fillStyle = '#dddddd';
 				ctx.beginPath();
 				ctx.arc(bonus.x+4.5,bonus.y+4.5,5,0,2*Math.PI);
 				ctx.fill();
-				ctx.fillStyle = '#ffffff';
-				ctx.fillStyle = '#ffffff';
+				ctx.fillStyle = '#8E4142';
+				ctx.fillStyle = '#8E4142';
 				ctx.fillRect(bonus.x+1,bonus.y+4,7,1);
 				ctx.fillRect(bonus.x+4,bonus.y+1,1,7);
 			}
@@ -341,6 +344,9 @@ window.onload = function(){
 				playerAmmoDiv.style.width = data.pack[i].ammo + '%';
 				//playerHpDiv.innerHTML = data.pack[i].hp;
 				playerHpDiv.style.width = data.pack[i].hp + '%';
+				//playerStaminaDiv.innerHTML = data.pack[i].stamina;
+				playerStaminaDiv.style.width = data.pack[i].stamina + '%';
+
 			} else {
 				ctx.stroke();
 			}
@@ -350,7 +356,7 @@ window.onload = function(){
 			if(data.pack[i].dead === true){
 				divStyle = 'style="color:#888888;text-decoration:line-through"';
 			}
-			if(data.pack[i].team === 'red'){
+			if(data.pack[i].team === '#E22D22'){
 				teamRedDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[i].name + ' (' + data.pack[i].score + ') ' + isMe + '</div>';
 			} else {
 				teamBlueDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[i].name + ' (' + data.pack[i].score + ') ' + isMe + '</div>';
@@ -367,7 +373,7 @@ window.onload = function(){
 			ctx.closePath();
 			ctx.stroke();
 		}
-		
+
 		// effects
 		for(var i in EFFECTS_LIST){
 			var effect = EFFECTS_LIST[i];
@@ -375,12 +381,12 @@ window.onload = function(){
 			effect.update();
 		}
 	});
-	
+
 	socket.on('chatMessageToDisplay',function(data){
 		chatDiv.innerHTML += '<div>' + data + '</div>';
 		chatDiv.scrollTop = chatDiv.scrollHeight;
 	});
-	
+
 	socket.on('patricleEffect',function(data){
 		var id = Math.random();
 		var effect = Effect(id, data.type, data.x, data.y, data.color);
@@ -388,7 +394,7 @@ window.onload = function(){
 		EFFECTS_LIST[id] = effect;
 		console.log('Effects: ' + Object.keys(EFFECTS_LIST).length);
 	});
-	
+
 	document.onkeydown = function(event){
 		if(inGame && document.activeElement.id != "chatInput"){
 			if(event.keyCode === 68 || event.keyCode === 70) // d
@@ -399,6 +405,8 @@ window.onload = function(){
 				socket.emit('keyPress',{inputId:'left',state:true});
 			else if(event.keyCode === 87) // w
 				socket.emit('keyPress',{inputId:'up',state:true});
+			else if(event. keyCode === 16) // shift
+				socket.emit('keyPress',{inputId:'shift',state:true})
 		}
 	}
 	document.onkeyup = function(event){
@@ -411,6 +419,8 @@ window.onload = function(){
 				socket.emit('keyPress',{inputId:'left',state:false});
 			else if(event.keyCode === 87) // w
 				socket.emit('keyPress',{inputId:'up',state:false});
+			else if(event. keyCode === 16) // shift
+				socket.emit('keyPress',{inputId:'shift',state:false})
 		}
 	}
 	document.onmousemove = function(event){
@@ -428,7 +438,7 @@ window.onload = function(){
 			socket.emit('keyPress',{inputId:'click'});
 		}
 	}
-	
+
 	chatInput.onkeyup = function(e){
 		if(e.keyCode === 13){
 			socket.emit('chatMessage',{id:selfId,message:chatInput.value});
@@ -436,5 +446,5 @@ window.onload = function(){
 		}
 	};
 
-}	
+}
 </script>

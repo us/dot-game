@@ -1,6 +1,6 @@
 body {
 	font-family: "Verdana";
-	background-color: #eeeeee;
+	background-color: #32344D;
 }
 
 #joinDiv {
@@ -8,7 +8,7 @@ body {
 	padding: 5px;
 	top: calc(50% - 125px);
 	left: calc(50% - 200px);
-    background-color: #dddddd;	
+    background-color: #dddddd;
 }
 
 #joinDiv-username {
@@ -35,24 +35,26 @@ body {
 
 #playersDiv{
 	font-size: 12px;
+	background-color: #A6A3BA;
 }
 
 #teamRedDiv {
-	color: red;
-	background-color: #ffbbbb;
+	color: white;
+	background-color: #E22D22;
 	margin:5px;
 	padding:5px;
 }
 
 #teamBlueDiv {
-	color: blue;
-	background-color: #bbbbff;
+	color: white;
+	background-color: #324B9B;
 	margin:5px;
 	padding:5px;
 }
 
 #hudDiv{
-	background-color: #dddddd;
+	background-color: #32344D;
+	color: white;
 	margin:5px;
 	padding:5px;
 }
@@ -62,11 +64,15 @@ body {
 }
 
 #playerAmmoDiv{
-	background-color: #ff8800;
+	background-color: #A6A3BA;
 }
 
 #playerHpDiv{
-	background-color: #00cc00;
+	background-color: #8E4142;
+}
+
+#playerStaminaDiv{
+	background-color: green;
 }
 
 #chatDiv{
