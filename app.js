@@ -14,8 +14,17 @@ var SOCKET_LIST = {};
 var PLAYER_LIST = {};
 var BULLET_LIST = {};
 var BONUS_LIST = {};
+var BULLET_DAMAGE = 40;
+var BULLET_DOWN = 4;
 
 var walls = [];
+
+process.argv.forEach(function (val, index, array) {
+	if (val == "hardcore") {
+		BULLET_DAMAGE = 100;
+		BULLET_DOWN = 20;
+	}
+});
 
 switch(process.argv[2])
 {
@@ -278,7 +287,7 @@ io.sockets.on('connection', function(socket){
 				player.angle = data.angle;
 			else if(data.inputId === 'click'){
 				if (player.ammo > 0) {
-					player.ammo -= 5;
+					player.ammo -= BULLET_DOWN;
 					var id = Math.random();
 					var bullet = Bullet(id,player.x,player.y,player.angle,player.id);
 					bullet.updatePosition();
@@ -453,7 +462,7 @@ var isSomeoneHit = function(bulletX,bulletY,parentId) {
 		var player = PLAYER_LIST[i];
 		var d = Math.sqrt( (bulletX-player.x)*(bulletX-player.x) + (bulletY-player.y)*(bulletY-player.y) );
 		if (d < 7){
-			PLAYER_LIST[i].hp -= 50;
+			PLAYER_LIST[i].hp -= BULLET_DAMAGE;
 			PLAYER_LIST[i].stamina -= 50;
 			if(PLAYER_LIST[i].hp <= 0){
 				PLAYER_LIST[i].hp = 100;
@@ -491,7 +500,7 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 		if ((player.id != PLAYER_LIST[parentId].id) && (player.team != PLAYER_LIST[parentId].team)) {
 			var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
 			if (d < 50){
-					player.hp -= 30;
+					player.hp -= BULLET_DAMAGE / 2;
 					if(player.hp <= 0){
 						player.hp = 100;
 						player.ammo = 100;
