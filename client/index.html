@@ -37,7 +37,7 @@
 			<tbody>
 				<tr>
 					<td>
-						<canvas id="ctx" width="1000" height="600" style="border:1px solid #000000;"></canvas>
+						<canvas id="ctx" width="1000" height="600" style="border:1px solid #000;"></canvas>
 					</td>
 					<td>
 						<div id="playersDiv" style="height:600px;width:200px; border:1px solid #000000;">	
@@ -77,28 +77,28 @@ var segments = [
 	{a:{x:0,y:600}, b:{x:0,y:0}},
 
 	// Polygon #1
-	{a:{x:270,y:50}, b:{x:400,y:50}},
-	{a:{x:270,y:50}, b:{x:270,y:250}},
-	{a:{x:270,y:250}, b:{x:400,y:250}},
-	{a:{x:400,y:250}, b:{x:400,y:50}},
+	{a:{x:280,y:50}, b:{x:390,y:50}},
+	{a:{x:280,y:50}, b:{x:280,y:240}},
+	{a:{x:280,y:240}, b:{x:390,y:240}},
+	{a:{x:390,y:240}, b:{x:390,y:50}},
 
 
-	{a:{x:610,y:50}, b:{x:740,y:50}},
-	{a:{x:610,y:50}, b:{x:610,y:250}},
-	{a:{x:610,y:250}, b:{x:740,y:250}},
-	{a:{x:740,y:250}, b:{x:740,y:50}},
+	{a:{x:620,y:50}, b:{x:740,y:50}},
+	{a:{x:620,y:50}, b:{x:620,y:240}},
+	{a:{x:620,y:240}, b:{x:740,y:240}},
+	{a:{x:740,y:240}, b:{x:740,y:50}},
 
 
-	{a:{x:270,y:350}, b:{x:400,y:350}},
-	{a:{x:400,y:350}, b:{x:400,y:560}},
-	{a:{x:400,y:560}, b:{x:270,y:560}},
-	{a:{x:270,y:560}, b:{x:270,y:350}},
+	{a:{x:280,y:350}, b:{x:390,y:350}},
+	{a:{x:390,y:350}, b:{x:390,y:550}},
+	{a:{x:390,y:550}, b:{x:280,y:550}},
+	{a:{x:280,y:550}, b:{x:280,y:350}},
 
 
-	{a:{x:610,y:350}, b:{x:740,y:350}},
-	{a:{x:610,y:350}, b:{x:610,y:560}},
-	{a:{x:610,y:560}, b:{x:740,y:560}},
-	{a:{x:740,y:560}, b:{x:740,y:350}}
+	{a:{x:620,y:350}, b:{x:740,y:350}},
+	{a:{x:620,y:350}, b:{x:620,y:550}},
+	{a:{x:620,y:550}, b:{x:740,y:550}},
+	{a:{x:740,y:550}, b:{x:740,y:350}}
 
 ];
 
@@ -374,11 +374,6 @@ var segments = [
 
 	}
 
-	function drawPolygon(polygon,ctx,fillStyle){
- 		
-		
-	}
-
 	function getIntersection(ray,segment){
 		
 
@@ -426,7 +421,7 @@ var segments = [
 	}
 
 	socket.on('disconnect', function () {
-		alert("Sunucu bağlantısı kapandı.");
+		//alert("Sunucu bağlantısı kapandı.");
 	});
 	
 	socket.on('initPack',function(data){
@@ -462,14 +457,14 @@ var segments = [
 				angle = data.pack[t].angle;
 
 
-				var fuzzyRadius = 10;
+				var fuzzyRadius = 2;
 				var polygons = [getSightPolygon(posX,posY)];
 				//drawPolygon(polygons[0],ctx,"#fff");
 
 				var polygon = polygons[0];
 				ctx.save();
 
-				ctx.fillStyle = '#fff';
+				ctx.fillStyle = '#000';
 				ctx.beginPath();
 				ctx.moveTo(polygon[0].x,polygon[0].y);
 				for(var i=1;i<polygon.length;i++){
@@ -496,7 +491,7 @@ var segments = [
 		ctx.fillRect(150,220,60,160);
 		ctx.fillRect(790,220,60,160);
 		// map
-		ctx.fillStyle = '#666666';
+		ctx.fillStyle = '#fff';
 		for (var i in map){
 			var wall = map[i];
 			ctx.fillRect(wall.x,wall.y,wall.width,wall.height);
