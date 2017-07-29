@@ -392,7 +392,7 @@ window.onload = function(){
 		var effect = Effect(id, data.type, data.x, data.y, data.color);
 		effect.init();
 		EFFECTS_LIST[id] = effect;
-		console.log('Effects: ' + Object.keys(EFFECTS_LIST).length);
+		// console.log('Effects: ' + Object.keys(EFFECTS_LIST).length);
 	});
 
 	document.onkeydown = function(event){
@@ -444,6 +444,13 @@ window.onload = function(){
 			socket.emit('chatMessage',{id:selfId,message:chatInput.value});
 			chatInput.value = '';
 		}
+	};
+
+	document.getElementById("joinDiv-username").onkeyup = function(e){
+	    if(e.keyCode == 13) {
+	    	button = document.getElementById("joinDiv-button");
+	    	if (button.onclick) { button.onclick();	} else if (button.click) { button.click(); }
+	    }
 	};
 
 }

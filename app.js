@@ -187,7 +187,7 @@ var Player = function(id){
 		inGame:false,
 		angle:Math.random()*360,
 		score:0,
-		maxSpd:3,
+		maxSpd:2,
 		pressingRight:false,
 		pressingLeft:false,
 		pressingUp:false,
@@ -262,11 +262,11 @@ io.sockets.on('connection', function(socket){
 				player.pressingDown = data.state;
 			else if(data.inputId === 'shift' && data.state === true)
 				if(player.stamina > 5) {
-					player.maxSpd = 6;
+					player.maxSpd = 4;
 					player.stamina -= 100;
-				} else { player.maxSped = 4 }
+				} else { player.maxSped = 2 }
 			else if(data.inputId === 'shift' && data.state === false)
-				player.maxSpd = 3;
+				player.maxSpd = 2;
 			else if(data.inputId === 'angle')
 				player.angle = data.angle;
 			else if(data.inputId === 'click'){
