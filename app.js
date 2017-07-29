@@ -207,6 +207,19 @@ var Player = function(id){
 			self.y -= self.maxSpd;
 		if(self.pressingDown && isCollision(2,self.x,self.y) !== true)
 			self.y += self.maxSpd;
+		if (self.pressingShift) {
+			if (self.stamina > 0) {
+				self.maxSpd = 2;
+				self.stamina -= 0.5;
+			} else {
+				self.maxSpd = 1;
+			}
+		} else {
+			self.maxSpd = 1;
+			if (self.stamina < 100) {
+				self.stamina += 0.15;
+			}
+		}
 
 
 		if(self.respawnCounter > 0){
@@ -259,13 +272,8 @@ io.sockets.on('connection', function(socket){
 				player.pressingUp = data.state;
 			else if(data.inputId === 'down')
 				player.pressingDown = data.state;
-			else if(data.inputId === 'shift' && data.state === true)
-				if(player.stamina > 5) {
-					player.maxSpd = 2;
-					player.stamina -= 100;
-				} else { player.maxSped = 1 }
-			else if(data.inputId === 'shift' && data.state === false)
-				player.maxSpd = 1;
+			else if(data.inputId === 'shift')
+				player.pressingShift = data.state;
 			else if(data.inputId === 'angle')
 				player.angle = data.angle;
 			else if(data.inputId === 'click'){
@@ -453,6 +461,11 @@ var isSomeoneHit = function(bulletX,bulletY,parentId) {
 				PLAYER_LIST[i].stamina = 100;
 				PLAYER_LIST[parentId].score++;
 				player.dead = true;
+				player.pressingRight = false,
+				player.pressingLeft = false,
+				player.pressingUp = false,
+				player.pressingDown = false,
+				player.pressingShift = false,
 				player.respawnCounter = 100;
 				player.x = -20;
 				player.y = -20;
@@ -484,6 +497,11 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 						player.ammo = 100;
 						PLAYER_LIST[parentId].score++;
 						player.dead = true;
+						player.pressingRight = false,
+						player.pressingLeft = false,
+						player.pressingUp = false,
+						player.pressingDown = false,
+						player.pressingShift = false,
 						player.respawnCounter = 100;
 						player.x = -20;
 						player.y = -20;
