@@ -157,7 +157,7 @@ var Bullet = function(id,x,y,angle,parentId){
 		spdX:Math.cos(angle*Math.PI/180) * 8,
 		spdY:Math.sin(angle*Math.PI/180) * 8,
 		parentId:parentId,
-		color:"#FC00D2",
+		color:"#ffffff",
 	}
 	self.updatePosition = function(){
 		self.x += self.spdX;
@@ -514,7 +514,7 @@ var isSomeoneStab = function(knifeX,knifeY,parentId) {
 						player.respawnCounter = 100;
 						player.x = -20;
 						player.y = -20;
-						
+
 						for(var i in SOCKET_LIST){
 							var socket = SOCKET_LIST[i];
 							socket.emit('patricleEffect',{type:1,x:knifeX,y:knifeY,color:player.team});
