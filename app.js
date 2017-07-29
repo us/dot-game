@@ -148,7 +148,7 @@ var Bullet = function(id,x,y,angle,parentId){
 		spdX:Math.cos(angle*Math.PI/180) * 8,
 		spdY:Math.sin(angle*Math.PI/180) * 8,
 		parentId:parentId,
-		color:PLAYER_LIST[parentId].team,
+		color:"#FC00D2",
 	}
 	self.updatePosition = function(){
 		self.x += self.spdX;
@@ -168,8 +168,7 @@ var Knife = function(id,x,y,parentId) {
 		id:id,
 		x:x,
 		y:y,
-		parentId:parentId,
-		color:PLAYER_LIST[parentId].team
+		parentId:parentId
 	}
 
 	isSomeoneStab(self.x,self.y,self.parentId)
@@ -187,7 +186,7 @@ var Player = function(id){
 		inGame:false,
 		angle:Math.random()*360,
 		score:0,
-		maxSpd:2,
+		maxSpd:1,
 		pressingRight:false,
 		pressingLeft:false,
 		pressingUp:false,
@@ -262,11 +261,11 @@ io.sockets.on('connection', function(socket){
 				player.pressingDown = data.state;
 			else if(data.inputId === 'shift' && data.state === true)
 				if(player.stamina > 5) {
-					player.maxSpd = 4;
+					player.maxSpd = 2;
 					player.stamina -= 100;
-				} else { player.maxSped = 2 }
+				} else { player.maxSped = 1 }
 			else if(data.inputId === 'shift' && data.state === false)
-				player.maxSpd = 2;
+				player.maxSpd = 1;
 			else if(data.inputId === 'angle')
 				player.angle = data.angle;
 			else if(data.inputId === 'click'){
