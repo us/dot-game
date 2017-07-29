@@ -1,15 +1,13 @@
-
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
-
 
 app.get('/',function(req, res) {
 	res.sendFile(__dirname + '/client/index.html');
 });
 app.use('/client',express.static(__dirname + '/client'));
 
-serv.listen(process.env.PORT || 80);
+serv.listen(process.env.PORT || 2003);
 console.log("Server started.");
 
 var SOCKET_LIST = {};
@@ -34,33 +32,12 @@ switch(process.argv[2])
 		walls = JSON.parse('[{"x":242,"y":22,"width":10,"height":170},{"x":254,"y":28,"width":158,"height":10},{"x":408,"y":32,"width":10,"height":154},{"x":260,"y":192,"width":154,"height":10},{"x":250,"y":404,"width":10,"height":152},{"x":258,"y":552,"width":156,"height":10},{"x":260,"y":412,"width":160,"height":10},{"x":420,"y":416,"width":10,"height":148},{"x":608,"y":34,"width":176,"height":10},{"x":616,"y":44,"width":10,"height":142},{"x":616,"y":186,"width":170,"height":10},{"x":786,"y":38,"width":10,"height":154},{"x":622,"y":410,"width":10,"height":136},{"x":628,"y":416,"width":140,"height":10},{"x":632,"y":548,"width":150,"height":10},{"x":780,"y":416,"width":10,"height":140},{"x":268,"y":236,"width":10,"height":114},{"x":752,"y":244,"width":10,"height":106},{"x":894,"y":294,"width":108,"height":10},{"x":112,"y":306,"width":2,"height":10},{"x":6,"y":314,"width":112,"height":10}]');
 	break;
 
-	case 'iceworld2':
-		walls.push({x:270,y:40,width:130,height:10});
-		walls.push({x:270,y:40,width:10,height:210});
-		walls.push({x:270,y:240,width:130,height:10});
-		walls.push({x:390,y:40,width:10,height:210});
-
-
-		walls.push({x:610,y:40,width:130,height:10});
-		walls.push({x:610,y:40,width:10,height:210});
-		walls.push({x:610,y:240,width:130,height:10});
-		walls.push({x:740,y:40,width:10,height:210});
-
-
-		walls.push({x:610,y:340,width:130,height:10});
-		walls.push({x:610,y:340,width:10,height:210});
-		walls.push({x:610,y:550,width:130,height:10});
-		walls.push({x:740,y:340,width:10,height:220});
-
-
-		walls.push({x:270,y:340,width:130,height:10});
-		walls.push({x:270,y:340,width:10,height:210});
-		walls.push({x:270,y:550,width:130,height:10});
-		walls.push({x:390,y:340,width:10,height:210});
-
-	break;
-
 	default:
+		walls.push({x:0,y:0,width:1000,height:10});
+		walls.push({x:990,y:0,width:10,height:600});
+		walls.push({x:0,y:590,width:1000,height:10});
+		walls.push({x:0,y:0,width:10,height:600});
+
 		walls.push({x:130,y:130,width:330,height:10});
 		walls.push({x:540,y:130,width:370,height:10});
 		walls.push({x:950,y:130,width:40,height:10});
@@ -86,11 +63,6 @@ switch(process.argv[2])
 		walls.push({x:570,y:530,width:10,height:60});
 	break;
 }
-
-walls.push({x:0,y:0,width:1000,height:10});
-walls.push({x:990,y:0,width:10,height:600});
-walls.push({x:0,y:590,width:1000,height:10});
-walls.push({x:0,y:0,width:10,height:600});
 
 const bulletLimit = 15;
 const hpLimit = 10;
@@ -304,7 +276,6 @@ io.sockets.on('connection', function(socket){
 	});
 
 	socket.on('keyPress',function(data){
-
 		if(player.dead === false){
 			if(data.inputId === 'left')
 				player.pressingLeft = data.state;
@@ -380,10 +351,7 @@ setInterval(function(){
 		if(Object.keys(BONUS_LIST).length < allLimit)
 		{
 			var id = Math.random();
-<<<<<<< HEAD
-=======
 			// console.log(bonusParser().bulletCounter);
->>>>>>> e1144052f58c867a6cef310884da266ff22b0e9f
 			var type = bonusParser().bulletCounter < bulletLimit ? 1 :  0;
 
 			var bonus = Bonus(id,type);
