@@ -82,6 +82,7 @@
 <script>
 
 window.onload = function(){
+	var AMMO;
 
 	var Particle = function(x,y,angle){
 		var self = {
@@ -263,6 +264,26 @@ window.onload = function(){
 		socket.disconnect();
 	}
 
+	socket.on("ammo_pickedup", function () {
+		(function () {
+			var audio = document.createElement("audio");
+			audio.src = "client/audio/gun_reload.mp3";
+			audio.addEventListener("ended", function () {
+			}, false);
+			audio.play();  
+		})();
+	});
+
+	socket.on("hp_pickedup", function () {
+		(function () {
+			var audio = document.createElement("audio");
+			audio.src = "client/audio/hp_reload.mp3";
+			audio.addEventListener("ended", function () {
+			}, false);
+			audio.play();  
+		})();
+	});
+
 	socket.on('disconnect', function () {
 		document.getElementById("server_dc").style['display'] = 'block';
 	});
@@ -350,6 +371,7 @@ window.onload = function(){
 				posY = data.pack[i].y;
 				angle = data.pack[i].angle;
 				angle = data.pack[i].angle;
+				AMMO = data.pack[i].ammo;
 				ctx.fill();
 				// stats on hud
 				playerKillsDiv.innerHTML = data.pack[i].score;
@@ -453,6 +475,15 @@ window.onload = function(){
 		mouseY = event.pageY - gameDiv.offsetTop;
 		if(inGame && mouseX > 0 && mouseX < 1000 && mouseY > 0 && mouseY < 600){
 			socket.emit('keyPress',{inputId:'click'});
+			if (AMMO > 0) {
+				(function () {
+					var audio = document.createElement("audio");
+					audio.src = "client/audio/fire_basic.mp3";
+					audio.addEventListener("ended", function () {
+					}, false);
+					audio.play();  
+				})();
+			}
 		}
 	}
 
