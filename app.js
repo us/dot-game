@@ -380,10 +380,6 @@ setInterval(function(){
 		if(Object.keys(BONUS_LIST).length < allLimit)
 		{
 			var id = Math.random();
-<<<<<<< HEAD
-=======
-			// console.log(bonusParser().bulletCounter);
->>>>>>> e1144052f58c867a6cef310884da266ff22b0e9f
 			var type = bonusParser().bulletCounter < bulletLimit ? 1 :  0;
 
 			var bonus = Bonus(id,type);
