@@ -308,9 +308,9 @@ io.sockets.on('connection', function(socket){
 			var redCount = 0;
 			var blueCount = 0;
 			for(var i in PLAYER_LIST){
-				if(PLAYER_LIST[i].team === '#E22D22'){
+				if(PLAYER_LIST[i].team === '#E22D22'){ //red
 					redCount++;
-				} else if(PLAYER_LIST[i].team === '#324B9B'){
+				} else if(PLAYER_LIST[i].team === '#324B9B'){ //blue
 					blueCount++;
 				}
 			}
