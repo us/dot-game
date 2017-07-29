@@ -125,6 +125,8 @@ var Bonus = function(id,type){
 				if (this.type === 1){ // ammo
 					if (player.ammo < 100){
 						player.ammo = 100;
+						var player_socket = SOCKET_LIST[player.id];
+						player_socket.emit("ammo_pickedup");
 						delete BONUS_LIST[self.id];
 						for(var i in SOCKET_LIST){
 							var socket = SOCKET_LIST[i];
@@ -135,6 +137,8 @@ var Bonus = function(id,type){
 					if (player.hp < 100 || player.stamina < 100){
 						player.hp = 100;
 						player.stamina = 100;
+						var player_socket = SOCKET_LIST[player.id];
+						player_socket.emit("hp_pickedup");
 						delete BONUS_LIST[self.id];
 						for(var i in SOCKET_LIST){
 							var socket = SOCKET_LIST[i];
@@ -347,7 +351,7 @@ setInterval(function(){
 		if(Object.keys(BONUS_LIST).length < allLimit)
 		{
 			var id = Math.random();
-			console.log(bonusParser().bulletCounter);
+			// console.log(bonusParser().bulletCounter);
 			var type = bonusParser().bulletCounter < bulletLimit ? 1 :  0;
 
 			var bonus = Bonus(id,type);
