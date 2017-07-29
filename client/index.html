@@ -71,43 +71,16 @@ window.onload = function(){
 var segments = [
 
 	// Border
-	{a:{x:0,y:0}, b:{x:840,y:0}},
-	{a:{x:840,y:0}, b:{x:840,y:360}},
-	{a:{x:840,y:360}, b:{x:0,y:360}},
-	{a:{x:0,y:360}, b:{x:0,y:0}},
+	{a:{x:0,y:0}, b:{x:1000,y:0}},
+	{a:{x:1000,y:0}, b:{x:1000,y:600}},
+	{a:{x:1000,y:600}, b:{x:0,y:600}},
+	{a:{x:0,y:600}, b:{x:0,y:0}},
 
 	// Polygon #1
-	{a:{x:100,y:150}, b:{x:120,y:50}},
-	{a:{x:120,y:50}, b:{x:200,y:80}},
-	{a:{x:200,y:80}, b:{x:140,y:210}},
-	{a:{x:140,y:210}, b:{x:100,y:150}},
-
-	// Polygon #2
-	{a:{x:100,y:200}, b:{x:120,y:250}},
-	{a:{x:120,y:250}, b:{x:60,y:300}},
-	{a:{x:60,y:300}, b:{x:100,y:200}},
-
-	// Polygon #3
-	{a:{x:200,y:260}, b:{x:220,y:150}},
-	{a:{x:220,y:150}, b:{x:300,y:200}},
-	{a:{x:300,y:200}, b:{x:350,y:320}},
-	{a:{x:350,y:320}, b:{x:200,y:260}},
-
-	// Polygon #4
-	{a:{x:540,y:60}, b:{x:560,y:40}},
-	{a:{x:560,y:40}, b:{x:570,y:70}},
-	{a:{x:570,y:70}, b:{x:540,y:60}},
-
-	// Polygon #5
-	{a:{x:650,y:190}, b:{x:760,y:170}},
-	{a:{x:760,y:170}, b:{x:740,y:270}},
-	{a:{x:740,y:270}, b:{x:630,y:290}},
-	{a:{x:630,y:290}, b:{x:650,y:190}},
-
-	// Polygon #6
-	{a:{x:600,y:95}, b:{x:780,y:50}},
-	{a:{x:780,y:50}, b:{x:680,y:150}},
-	{a:{x:680,y:150}, b:{x:600,y:95}}
+	{a:{x:25,y:25}, b:{x:125,y:25}},
+	{a:{x:25,y:25}, b:{x:25,y:125}},
+	{a:{x:25,y:125}, b:{x:125,y:125}},
+	{a:{x:125,y:125}, b:{x:125,y:25}},
 
 ];
 
@@ -385,20 +358,7 @@ var segments = [
 
 	function drawPolygon(polygon,ctx,fillStyle){
  		
- 		ctx.save();
-
-		ctx.fillStyle = fillStyle;
-		ctx.beginPath();
-		ctx.moveTo(polygon[0].x,polygon[0].y);
-		for(var i=1;i<polygon.length;i++){
-			var intersect = polygon[i];
-			ctx.lineTo(intersect.x,intersect.y);
-		}
-		ctx.fill();
-
-		ctx.clip();
-
-		ctx.restore();
+		
 	}
 
 	function getIntersection(ray,segment){
@@ -473,6 +433,36 @@ var segments = [
 		ctx.clearRect(0,0,WIDTH,HEIGHT);
 		teamRedDiv.innerHTML = "<b>Team red:</b>";
 		teamBlueDiv.innerHTML = "<b>Team blue:</b>";
+
+		//here baby
+
+		for(var t = 0; t < data.pack.length; t++) {
+			if(data.pack[t].id === selfId) {
+				isMe = "[me]";
+				posX = data.pack[t].x;
+				posY = data.pack[t].y;
+				angle = data.pack[t].angle;
+
+
+				var fuzzyRadius = 10;
+				var polygons = [getSightPolygon(posX,posY)];
+				//drawPolygon(polygons[0],ctx,"#fff");
+
+				var polygon = polygons[0];
+				ctx.save();
+
+				ctx.fillStyle = '#fff';
+				ctx.beginPath();
+				ctx.moveTo(polygon[0].x,polygon[0].y);
+				for(var i=1;i<polygon.length;i++){
+					var intersect = polygon[i];
+					ctx.lineTo(intersect.x,intersect.y);
+				}
+				ctx.fill();
+				ctx.clip();
+		
+			}
+		}
 		
 		// zones
 		ctx.fillStyle = '#ffbbbb'; // red area
@@ -531,15 +521,15 @@ var segments = [
 			ctx.stroke();
 			// player's dot
 			if(data.pack[t].id === selfId) {
-				isMe = "[me]";
-				posX = data.pack[t].x;
-				posY = data.pack[t].y;
-				angle = data.pack[t].angle;
+				// isMe = "[me]";
+				// posX = data.pack[t].x;
+				// posY = data.pack[t].y;
+				// angle = data.pack[t].angle;
 
 
-				var fuzzyRadius = 10;
-				var polygons = [getSightPolygon(posX,posY)];
-				drawPolygon(polygons[0],ctx,"#fff");
+				// var fuzzyRadius = 10;
+				// var polygons = [getSightPolygon(posX,posY)];
+				// drawPolygon(polygons[0],ctx,"#fff");
 			
 			} else {
 				ctx.stroke();
@@ -575,7 +565,12 @@ var segments = [
 			effect.draw();
 			effect.update();
 		}
+
+		ctx.clip();
+		ctx.restore();
 	});
+
+
 	
 	socket.on('chatMessageToDisplay',function(data){
 		chatDiv.innerHTML += '<div>' + data + '</div>';

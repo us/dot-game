@@ -1,11 +1,3 @@
-import { createTimeline } from 'timeframe'
-
-var timeline = createTimeline()
- 
-timeline.takeSnapshot({
-  player: { x: 100 },
-  enemy: { x: 0 }
-})
 
 var express = require('express');
 var app = express();
