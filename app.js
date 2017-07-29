@@ -1,6 +1,16 @@
+import { createTimeline } from 'timeframe'
+
+var timeline = createTimeline()
+ 
+timeline.takeSnapshot({
+  player: { x: 100 },
+  enemy: { x: 0 }
+})
+
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
+
 
 app.get('/',function(req, res) {
 	res.sendFile(__dirname + '/client/index.html');
@@ -24,11 +34,6 @@ switch(process.argv[2])
 	break;
 
 	default:
-		walls.push({x:0,y:0,width:1000,height:10});
-		walls.push({x:990,y:0,width:10,height:600});
-		walls.push({x:0,y:590,width:1000,height:10});
-		walls.push({x:0,y:0,width:10,height:600});
-
 		walls.push({x:130,y:130,width:330,height:10});
 		walls.push({x:540,y:130,width:370,height:10});
 		walls.push({x:950,y:130,width:40,height:10});
@@ -54,6 +59,11 @@ switch(process.argv[2])
 		walls.push({x:570,y:530,width:10,height:60});
 	break;
 }
+
+walls.push({x:0,y:0,width:1000,height:10});
+walls.push({x:990,y:0,width:10,height:600});
+walls.push({x:0,y:590,width:1000,height:10});
+walls.push({x:0,y:0,width:10,height:600});
 
 const bulletLimit = 15;
 const hpLimit = 10;
@@ -236,6 +246,7 @@ io.sockets.on('connection', function(socket){
 	});
 	
 	socket.on('keyPress',function(data){
+
 		if(player.dead === false){
 			if(data.inputId === 'left')
 				player.pressingLeft = data.state;
@@ -304,7 +315,6 @@ setInterval(function(){
 		if(Object.keys(BONUS_LIST).length < allLimit)
 		{
 			var id = Math.random();
-			console.log(bonusParser().bulletCounter);
 			var type = bonusParser().bulletCounter < bulletLimit ? 1 :  0;
 
 			var bonus = Bonus(id,type);
