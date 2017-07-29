@@ -123,8 +123,9 @@ var Bonus = function(id,type){
 						}
 					}
 				} else { // hp
-					if (player.hp < 100){
+					if (player.hp < 100 || player.stamina < 100){
 						player.hp = 100;
+						player.stamina = 100;
 						delete BONUS_LIST[self.id];
 						for(var i in SOCKET_LIST){
 							var socket = SOCKET_LIST[i];
@@ -186,7 +187,7 @@ var Player = function(id){
 		inGame:false,
 		angle:Math.random()*360,
 		score:0,
-		maxSpd:4,
+		maxSpd:3,
 		pressingRight:false,
 		pressingLeft:false,
 		pressingUp:false,
@@ -265,7 +266,7 @@ io.sockets.on('connection', function(socket){
 					player.stamina -= 100;
 				} else { player.maxSped = 4 }
 			else if(data.inputId === 'shift' && data.state === false)
-				player.maxSpd = 4;
+				player.maxSpd = 3;
 			else if(data.inputId === 'angle')
 				player.angle = data.angle;
 			else if(data.inputId === 'click'){
@@ -385,7 +386,7 @@ setInterval(function(){
 		var socket = SOCKET_LIST[i];
 		socket.emit('updatePack',{pack,bullets_pack,bonus_pack});
 	}
-},1000/25);
+},10);
 
 var isCollision = function(type, selfX, selfY){ // 1-right 2-down 3-left 4-up 5-bullet
 	var posX = selfX;
