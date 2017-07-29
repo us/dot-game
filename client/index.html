@@ -418,7 +418,9 @@ window.onload = function(){
 			else if(event.keyCode === 87) // w
 				socket.emit('keyPress',{inputId:'up',state:true});
 			else if(event. keyCode === 16) // shift
-				socket.emit('keyPress',{inputId:'shift',state:true})
+				socket.emit('keyPress',{inputId:'shift',state:true});
+			else if(event. keyCode === 32) // shift
+				socket.emit('keyPress',{inputId:'space',state:true})
 		}
 	}
 	document.onkeyup = function(event){
@@ -432,7 +434,9 @@ window.onload = function(){
 			else if(event.keyCode === 87) // w
 				socket.emit('keyPress',{inputId:'up',state:false});
 			else if(event. keyCode === 16) // shift
-				socket.emit('keyPress',{inputId:'shift',state:false})
+				socket.emit('keyPress',{inputId:'shift',state:false});
+			else if(event. keyCode === 32) // shift
+				socket.emit('keyPress',{inputId:'space',state:false})
 		}
 	}
 	document.onmousemove = function(event){
