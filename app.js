@@ -264,12 +264,11 @@ io.sockets.on('connection', function(socket){
 					player.ammo -= 5;
 					var id = Math.random();
 					var bullet = Bullet(id,player.x,player.y,player.angle,player.id);
-					var knife = Knife(id,player.x,player.y,player.id);
 					bullet.updatePosition();
 					BULLET_LIST[id] = bullet;
-				} else {
-					var knife = Knife(id,player.x,player.y,player.id);
 				}
+
+				var knife = Knife(id,player.x,player.y,player.id);
 			}
 		}
 	});
@@ -463,35 +462,35 @@ var isSomeoneHit = function(bulletX,bulletY,parentId) {
 
 var isSomeoneStab = function(knifeX,knifeY,parentId) {
 	for (var i in PLAYER_LIST){
+		console.log("Vuran: " + PLAYER_LIST[parentId].name)
+		console.log("Vurulan: " + PLAYER_LIST[i].name)
 		var player = PLAYER_LIST[i];
-		var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
-		if (d < 50){
-			if ((player.id != PLAYER_LIST[parentId].id) && (player.team != PLAYER_LIST[parentId].team)) {
-				console.log("Vuran: " + PLAYER_LIST[parentId].name)
-				console.log("Vurulan: " + player.name)
-				// player.hp -= 30;
+		if ((player.id != PLAYER_LIST[parentId].id) && (player.team != PLAYER_LIST[parentId].team)) {
+			var d = Math.sqrt( (knifeX-player.x)*(knifeX-player.x) + (knifeY-player.y)*(knifeY-player.y) );
+			if (d < 50){
+					player.hp -= 30;
 
-				// if(player.hp <= 0){
-				// 	player.hp = 100;
-				// 	player.ammo = 100;
-				// 	PLAYER_LIST[parentId].score++;
-				// 	player.dead = true;
-				// 	player.respawnCounter = 100;
-				// 	player.x = -20;
-				// 	player.y = -20;
+					if(player.hp <= 0){
+						player.hp = 100;
+						player.ammo = 100;
+						PLAYER_LIST[parentId].score++;
+						player.dead = true;
+						player.respawnCounter = 100;
+						player.x = -20;
+						player.y = -20;
 						
-				// 	for(var i in SOCKET_LIST){
-				// 		var socket = SOCKET_LIST[i];
-				// 		socket.emit('patricleEffect',{type:1,x:knifeX,y:knifeY,color:player.team});
-				// 	}
-				// } else {
-				// 	for(var i in SOCKET_LIST){
-				// 		var socket = SOCKET_LIST[i];
-				// 		socket.emit('patricleEffect',{type:2,x:knifeX,y:knifeY,color:player.team});
-				// 	}
-				// }
-			}
-			return true;
+						for(var i in SOCKET_LIST){
+							var socket = SOCKET_LIST[i];
+							socket.emit('patricleEffect',{type:1,x:knifeX,y:knifeY,color:player.team});
+						}
+					} else {
+						for(var i in SOCKET_LIST){
+							var socket = SOCKET_LIST[i];
+							socket.emit('patricleEffect',{type:2,x:knifeX,y:knifeY,color:player.team});
+						}
+					}
+				}
+			// return true;
 		}
 	}
 }
