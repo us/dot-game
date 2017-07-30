@@ -316,7 +316,7 @@ io.sockets.on('connection', function(socket){
       else if(data.inputId === 'shift')
         player.pressingShift = data.state;
       else if(data.inputId === 'click'){
-      player.angle = data.angle;
+        player.angle = data.angle;
         if (player.ammo > 0) {
           player.ammo -= BULLET_DOWN;
           var id = Math.random();
