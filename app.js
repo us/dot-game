@@ -227,7 +227,7 @@ var Player = function(id){
     inGame:false,
     angle:Math.random()*360,
     score:0,
-    maxSpd:10,
+    maxSpd:2,
     pressingRight:false,
     pressingLeft:false,
     pressingUp:false,
@@ -433,7 +433,7 @@ setInterval(function(){
     var socket = SOCKET_LIST[i];
     socket.emit('updatePack',{pack,bullets_pack,bonus_pack});
   }
-},64);
+},20);
 
 var isCollision = function(type, selfX, selfY){ // 1-right 2-down 3-left 4-up 5-bullet
   var posX = selfX;
