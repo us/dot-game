@@ -681,19 +681,12 @@ var segments = [
 				socket.emit('keyPress',{inputId:'space',state:false})
 		}
 	}
-	document.onmousemove = function(event){
-		if(inGame){
-			mouseX = event.pageX - gameDiv.offsetLeft;
-			mouseY = event.pageY - gameDiv.offsetTop;
-			var angle = Math.atan2(mouseY - posY, mouseX - posX) * 180 / Math.PI;
-			socket.emit('keyPress',{inputId:'angle',angle});
-		}
-	}
 	document.onmousedown = function(event){
 		mouseX = event.pageX - gameDiv.offsetLeft;
 		mouseY = event.pageY - gameDiv.offsetTop;
+		var angle = Math.atan2(mouseY - posY, mouseX - posX) * 180 / Math.PI;
 		if(inGame && mouseX > 0 && mouseX < 1000 && mouseY > 0 && mouseY < 600){
-			socket.emit('keyPress',{inputId:'click'});
+			socket.emit('keyPress',{inputId:'click',angle});
 			if (AMMO > 0) {
 				(function () {
 					var audio = document.createElement("audio");
