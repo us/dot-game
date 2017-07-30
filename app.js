@@ -512,7 +512,7 @@ var isSomeoneHit = function(bulletX,bulletY,parentId) {
 				player.x = -20;
 				player.y = -20;
 
-				for(var i in SOCKET_LIST){
+			  for(var i in SOCKET_LIST){
 					var socket = SOCKET_LIST[i];
 					socket.emit('patricleEffect',{type:1,x:bulletX,y:bulletY,color:player.team});
 				}
