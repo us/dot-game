@@ -29,18 +29,21 @@
 			</tbody>
 		</table>
 		<button id="joinDiv-button">Join now!</button>
-		<div id="joinDiv-message"></div>	
+		<div id="joinDiv-message"></div>
 	</div>
 
 	<div id="gameDiv" style="display:none;">
+		<div id="server_dc" style="display: none; position: absolute; width: 300px; height: 100px; background-color: #ffffff; color: #000000; left: 37%; top: 40%;">
+			<p style="line-height: 65px">Server Disconnected</p>
+		</div>
 		<table>
 			<tbody>
 				<tr>
 					<td>
-						<canvas id="ctx" width="1000" height="600" style="border:1px solid #000000;"></canvas>
+						<canvas id="ctx" width="1000" height="600" style="border:1px solid #000;"></canvas>
 					</td>
 					<td>
-						<div id="playersDiv" style="height:600px;width:200px; border:1px solid #000000;">	
+						<div id="playersDiv" style="height:600px;width:200px; border:1px solid #000000;">
 							<div id="hudDiv">
 								Kills:<br>
 								<div id="playerKillsDiv">&nbsp;</div>
@@ -48,6 +51,8 @@
 								<div id="playerAmmoDiv">&nbsp;</div>
 								Hp:<br>
 								<div id="playerHpDiv">&nbsp;</div>
+								Stamina:<br>
+								<div id="playerStaminaDiv">&nbsp;</div>
 							</div>
 							<hr>
 							<div id="teamRedDiv"></div>
@@ -55,6 +60,16 @@
 							<hr>
 							<div id="chatDiv"></div>
 							<input id="chatInput" type="text" placeholder="Enter your message"></input><br>
+							<div id="instructionDiv" style="padding-top: 5px; padding-left: 10px;">
+								<span><strong>W:</strong> Up</span><br>
+								<span><strong>S:</strong> Down</span><br>
+								<span><strong>A:</strong> Left</span><br>
+								<span><strong>D:</strong> Right</span><br>
+								<span><strong>Shift:</strong> Run</span><br>
+								<span><strong>Mouse:</strong> Aim</span><br>
+								<span><strong>Left Click:</strong> Ataş Et</span><br>
+								<span><strong>Space:</strong> Pıçakla</span>
+							</div>
 						</div>
 					</td>
 				</tr>
@@ -67,6 +82,47 @@
 <script>
 
 window.onload = function(){
+	var AMMO;
+
+	// PRELOAD of 14KB Fire Sound
+	(function () {
+		var audio = document.createElement("audio");
+		audio.src = "client/audio/fire_basic.mp3";
+		audio.play();  
+		audio.pause();
+	})();
+
+var segments = [
+
+	// Border
+	{a:{x:0,y:0}, b:{x:1000,y:0}},
+	{a:{x:1000,y:0}, b:{x:1000,y:600}},
+	{a:{x:1000,y:600}, b:{x:0,y:600}},
+	{a:{x:0,y:600}, b:{x:0,y:0}},
+
+	// Polygon #1
+	{a:{x:270,y:40}, b:{x:400,y:40}},
+	{a:{x:270,y:40}, b:{x:270,y:250}},
+	{a:{x:270,y:250}, b:{x:400,y:250}},
+	{a:{x:400,y:250}, b:{x:400,y:40}},
+
+	{a:{x:610,y:40}, b:{x:750,y:40}},
+	{a:{x:610,y:40}, b:{x:610,y:250}},
+	{a:{x:610,y:250}, b:{x:750,y:250}},
+	{a:{x:750,y:250}, b:{x:750,y:40}},
+
+	{a:{x:270,y:340}, b:{x:400,y:340}},
+	{a:{x:400,y:340}, b:{x:400,y:560}},
+	{a:{x:400,y:560}, b:{x:270,y:560}},
+	{a:{x:270,y:560}, b:{x:270,y:340}},
+
+	{a:{x:610,y:340}, b:{x:750,y:340}},
+	{a:{x:610,y:340}, b:{x:610,y:560}},
+	{a:{x:610,y:560}, b:{x:750,y:560}},
+	{a:{x:750,y:560}, b:{x:750,y:340}}
+
+];
+
 
 	var Particle = function(x,y,angle){
 		var self = {
@@ -77,7 +133,7 @@ window.onload = function(){
 		}
 		return self;
 	}
-	
+
 	var Effect = function(id,type,x,y,color){
 		var self = {
 			id:id,
@@ -93,7 +149,7 @@ window.onload = function(){
 			speed:0,
 			particles:{},
 		}
-		self.init = function(){	
+		self.init = function(){
 			if (self.color === 'red'){
 				self.r = 255;
 				self.g = 0;
@@ -115,7 +171,7 @@ window.onload = function(){
 				self.g = 0;
 				self.b = 0;
 			}
-				
+
 			var particleCount = 10;
 			if (self.type === 1){
 				particleCount = 18;
@@ -124,7 +180,7 @@ window.onload = function(){
 				var particle = Particle(self.x,self.y,i*360/particleCount);
 				self.particles[i] = particle;
 			}
-			
+
 			if(self.type === 1 || self.type === 4){
 				self.speed = 5;
 			} else if (self.type === 2){
@@ -180,11 +236,11 @@ window.onload = function(){
 		}
 		return self;
 	}
-	
+
 	var EFFECTS_LIST = {};
-	
-	
-	
+
+
+
 	var joinDiv = document.getElementById("joinDiv");
 	var joinDivUsername = document.getElementById("joinDiv-username");
 	var joinDivTeamAuto = document.getElementById("teamAuto");
@@ -200,11 +256,12 @@ window.onload = function(){
 	var playerKillsDiv = document.getElementById("playerKillsDiv");
 	var playerAmmoDiv = document.getElementById("playerAmmoDiv");
 	var playerHpDiv = document.getElementById("playerHpDiv");
+	var playerStaminaDiv = document.getElementById("playerStaminaDiv");
 	var chatDiv = document.getElementById("chatDiv");
 	var chatInput = document.getElementById("chatInput");
 	var team = "";
 	var inGame = false;
-	
+
 	joinDivButton.onclick = function(){
 		joinDivMessage.innerHTML = "";
 		if(joinDivUsername.value === ""){
@@ -212,9 +269,9 @@ window.onload = function(){
 		} else {
 			if(joinDivUsername.value !== ""){
 				if (joinDivTeamRed.checked){
-					team = 'red';
+					team = '#E22D22';
 				} else if (joinDivTeamBlue.checked) {
-					team = 'blue';
+					team = '#324B9B';
 				} else {
 					team = 'auto';
 				}
@@ -225,7 +282,7 @@ window.onload = function(){
 			}
 		}
 	}
-	
+
 	var WIDTH = 1000;
 	var HEIGHT = 600;
 	var selfId = null;
@@ -234,29 +291,188 @@ window.onload = function(){
 	ctx.font = '30px Arial';
 
 	var socket = io();
-	
+
 	var mouseX = 0;
 	var mouseY = 0;
-	
+
 	var posX = 0;
 	var posY = 0;
 	var angle = 0;
-	 
-	
-	window.onbeforeunload = function() {
-		socket.disconnect(); 
+
+	function rotate_point(cx,cy,angle,p)
+	{
+	  var s = Math.sin(angle);
+	  var c = Math.cos(angle);
+
+	  // translate point back to origin:
+	  p.x -= cx;
+	  p.y -= cy;
+
+	  // rotate point
+	  var xnew = p.x * c - p.y * s;
+	  var ynew = p.x * s + p.y * c;
+
+	  // translate point back:
+	  p.x = xnew + cx;
+	  p.y = ynew + cy;
+	  return p;
 	}
 
-	socket.on('disconnect', function () {
-		alert("Sunucu bağlantısı kapandı.");
-	});
+
+	function getSightPolygon(sightX,sightY){
+
+		// Get all unique points
+		var points = (function(segments){
+			var a = [];
+			segments.forEach(function(seg){
+				a.push(seg.a,seg.b);
+			});
+			return a;
+		})(segments);
+		var uniquePoints = (function(points){
+			var set = {};
+			return points.filter(function(p){
+				var key = p.x+","+p.y;
+				if(key in set){
+					return false;
+				}else{
+					set[key]=true;
+					return true;
+				}
+			});
+		})(points);
+
+		// Get all angles
+		var uniqueAngles = [];
+		for(var j=0;j<uniquePoints.length;j++){
+			var uniquePoint = uniquePoints[j];
+			var angle = Math.atan2(uniquePoint.y-sightY,uniquePoint.x-sightX);
+			uniquePoint.angle = angle;
+			uniqueAngles.push(angle-0.00001,angle,angle+0.00001);
+		}
+
+		// RAYS IN ALL DIRECTIONS
+		var intersects = [];
+		for(var j=0;j<uniqueAngles.length;j++){
+			var angle = uniqueAngles[j];
+
+			// Calculate dx & dy from angle
+			var dx = Math.cos(angle);
+			var dy = Math.sin(angle);
+
+			// Ray from center of screen to mouse
+			var ray = {
+				a:{x:sightX,y:sightY},
+				b:{x:sightX+dx,y:sightY+dy}
+			};
+
+			// Find CLOSEST intersection
+			var closestIntersect = null;
+			for(var i=0;i<segments.length;i++){
+				var intersect = getIntersection(ray,segments[i]);
+				if(!intersect) continue;
+				if(!closestIntersect || intersect.param<closestIntersect.param){
+					closestIntersect=intersect;
+				}
+			}
+
+			// Intersect angle
+			if(!closestIntersect) continue;
+			closestIntersect.angle = angle;
+
+			// Add to list of intersects
+			intersects.push(closestIntersect);
+
+		}
+
+		// Sort intersects by angle
+		intersects = intersects.sort(function(a,b){
+			return a.angle-b.angle;
+		});
+
+		// Polygon is intersects, in order of angle
+		return intersects;
+
+	}
+
+	function getIntersection(ray,segment){
+		
+
+		var r_px = ray.a.x;
+		var r_py = ray.a.y;
+		var r_dx = ray.b.x-ray.a.x;
+		var r_dy = ray.b.y-ray.a.y;
+
+
+		var s_px = segment.a.x;
+		var s_py = segment.a.y;
+		var s_dx = segment.b.x-segment.a.x;
+		var s_dy = segment.b.y-segment.a.y;
 	
+		var r_mag = Math.sqrt(r_dx*r_dx+r_dy*r_dy);
+		var s_mag = Math.sqrt(s_dx*s_dx+s_dy*s_dy);
+		if(r_dx/r_mag==s_dx/s_mag && r_dy/r_mag==s_dy/s_mag){
+			return null;
+		}
+
+
+		// r_px+r_dx*T1 = s_px+s_dx*T2 && r_py+r_dy*T1 = s_py+s_dy*T2
+		// ==> T1 = (s_px+s_dx*T2-r_px)/r_dx = (s_py+s_dy*T2-r_py)/r_dy
+		// ==> s_px*r_dy + s_dx*T2*r_dy - r_px*r_dy = s_py*r_dx + s_dy*T2*r_dx - r_py*r_dx
+		// ==> T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx)
+
+
+		var T2 = (r_dx*(s_py-r_py) + r_dy*(r_px-s_px))/(s_dx*r_dy - s_dy*r_dx);
+
+		var T1 = (s_px+s_dx*T2-r_px)/r_dx;
+
+
+		if(T1<0) return null;
+		if(T2<0 || T2>1) return null;
+
+		return {
+			x: r_px+r_dx*T1,
+			y: r_py+r_dy*T1,
+			param: T1
+		};
+	}
+	
+	window.onbeforeunload = function() {
+		socket.disconnect();
+	}
+
+	socket.on("ammo_pickedup", function () {
+		(function () {
+			var audio = document.createElement("audio");
+			audio.src = "client/audio/gun_reload.mp3";
+			audio.addEventListener("ended", function () {
+			}, false);
+			audio.play();  
+		})();
+	});
+
+	socket.on("hp_pickedup", function () {
+		(function () {
+			var audio = document.createElement("audio");
+			audio.src = "client/audio/hp_reload.mp3";
+			audio.addEventListener("ended", function () {
+			}, false);
+			audio.play();  
+		})();
+	});
+
+	socket.on('disconnect', function () {
+
+		document.getElementById("server_dc").style['display'] = 'block';
+	});
+
 	socket.on('initPack',function(data){
 		selfId = data.selfId;
 		map = data.walls;
 	});
-	
+
 	socket.on('updatePack',function(data){
+
 		var playerCount = 0;
 		for (var i in data.pack){
 			if (data.pack[i].inGame === true){
@@ -268,26 +484,59 @@ window.onload = function(){
 		} else {
 			document.title = 'dotGame (' + playerCount + ' players)';
 		}
-		
+
 		ctx.clearRect(0,0,WIDTH,HEIGHT);
 		teamRedDiv.innerHTML = "<b>Team red:</b>";
 		teamBlueDiv.innerHTML = "<b>Team blue:</b>";
+
+		//here baby
+
+		for(var t = 0; t < data.pack.length; t++) {
+			if(data.pack[t].id === selfId) {
+				isMe = "[me]";
+				posX = data.pack[t].x;
+				posY = data.pack[t].y;
+				angle = data.pack[t].angle;
+
+
+				var fuzzyRadius = 2;
+				var polygons = [getSightPolygon(posX,posY)];
+				//drawPolygon(polygons[0],ctx,"#fff");
+
+				var polygon = polygons[0];
+				ctx.save();
+
+				ctx.fillStyle = '#000';
+				ctx.beginPath();
+				ctx.moveTo(polygon[0].x,polygon[0].y);
+				for(var i=1;i<polygon.length;i++){
+					var intersect = polygon[i];
+					ctx.lineTo(intersect.x,intersect.y);
+				}
+				ctx.fill();
+				ctx.clip();
 		
+			}
+		}
+		
+
 		// zones
-		ctx.fillStyle = '#ffbbbb'; // red area
+		ctx.fillStyle = 'transparent'; // red area
 		ctx.fillRect(20,20,100,100);
-		ctx.fillStyle = '#bbbbff'; // blue area
+		ctx.fillStyle = 'transparent'; // blue area
 		ctx.fillRect(880,480,100,100);
-		ctx.fillStyle = '#bbffbb'; // hp zones
+		ctx.fillStyle = 'transparent'; // hp zones
 		ctx.fillRect(20,480,100,100);
 		ctx.fillRect(880,20,100,100);
 		ctx.fillRect(430,260,140,80);
-		ctx.fillStyle = '#ffee99'; // ammo zones
-		ctx.fillStyle = '#ffee99'; // ammo zones
+		ctx.fillStyle = 'transparent'; // ammo zones
+		ctx.fillStyle = 'transparent'; // ammo zones
 		ctx.fillRect(150,220,60,160);
 		ctx.fillRect(790,220,60,160);
 		// map
-		ctx.fillStyle = '#666666';
+
+		ctx.fillStyle = '#aaaaaa';
+
 		for (var i in map){
 			var wall = map[i];
 			ctx.fillRect(wall.x,wall.y,wall.width,wall.height);
@@ -296,27 +545,28 @@ window.onload = function(){
 		for(var i = 0; i < data.bonus_pack.length; i++) {
 			var bonus = data.bonus_pack[i];
 			if (bonus.type === 1){
-				ctx.fillStyle = '#ff8800';
+				ctx.fillStyle = '#dddddd';
 				ctx.beginPath();
 				ctx.arc(bonus.x+4.5,bonus.y+4.5,5,0,2*Math.PI);
 				ctx.fill();
-				ctx.fillStyle = '#ffffff';
+				ctx.fillStyle = '#A6A3BA';
 				ctx.fillRect(bonus.x+2.5,bonus.y+1,1,7);
 				ctx.fillRect(bonus.x+5.5,bonus.y+1,1,7);
-				
+
 			} else {
-				ctx.fillStyle = '#00cc00';
+				ctx.fillStyle = '#dddddd';
 				ctx.beginPath();
 				ctx.arc(bonus.x+4.5,bonus.y+4.5,5,0,2*Math.PI);
 				ctx.fill();
-				ctx.fillStyle = '#ffffff';
-				ctx.fillStyle = '#ffffff';
+				ctx.fillStyle = '#8E4142';
+				ctx.fillStyle = '#8E4142';
 				ctx.fillRect(bonus.x+1,bonus.y+4,7,1);
 				ctx.fillRect(bonus.x+4,bonus.y+1,1,7);
 			}
 		}
 		// players
 		for(var i = 0; i < data.pack.length; i++) {
+
 			var isMe = "";
 			ctx.fillStyle = data.pack[i].team;
 			ctx.strokeStyle = data.pack[i].team;
@@ -328,12 +578,14 @@ window.onload = function(){
 			ctx.lineTo(data.pack[i].x + 12*Math.cos(angle), data.pack[i].y + 12*Math.sin(angle));
 			ctx.stroke();
 			// player's dot
+
 			if(data.pack[i].id === selfId) {
 				isMe = "[me]";
 				posX = data.pack[i].x;
 				posY = data.pack[i].y;
 				angle = data.pack[i].angle;
 				angle = data.pack[i].angle;
+				AMMO = data.pack[i].ammo;
 				ctx.fill();
 				// stats on hud
 				playerKillsDiv.innerHTML = data.pack[i].score;
@@ -341,6 +593,9 @@ window.onload = function(){
 				playerAmmoDiv.style.width = data.pack[i].ammo + '%';
 				//playerHpDiv.innerHTML = data.pack[i].hp;
 				playerHpDiv.style.width = data.pack[i].hp + '%';
+				//playerStaminaDiv.innerHTML = data.pack[i].stamina;
+				playerStaminaDiv.style.width = data.pack[i].stamina + '%';
+
 			} else {
 				ctx.stroke();
 			}
@@ -350,11 +605,13 @@ window.onload = function(){
 			if(data.pack[i].dead === true){
 				divStyle = 'style="color:#888888;text-decoration:line-through"';
 			}
-			if(data.pack[i].team === 'red'){
+
+			if(data.pack[i].team === '#E22D22'){
 				teamRedDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[i].name + ' (' + data.pack[i].score + ') ' + isMe + '</div>';
 			} else {
 				teamBlueDiv.innerHTML += '<div ' + divStyle + '>' + data.pack[i].name + ' (' + data.pack[i].score + ') ' + isMe + '</div>';
 			}
+
 		}
 		// bullets
 		for(var i = 0; i < data.bullets_pack.length; i++) {
@@ -367,30 +624,33 @@ window.onload = function(){
 			ctx.closePath();
 			ctx.stroke();
 		}
-		
+
 		// effects
 		for(var i in EFFECTS_LIST){
 			var effect = EFFECTS_LIST[i];
 			effect.draw();
 			effect.update();
 		}
+
+		ctx.clip();
+		ctx.restore();
 	});
-	
+
 	socket.on('chatMessageToDisplay',function(data){
 		chatDiv.innerHTML += '<div>' + data + '</div>';
 		chatDiv.scrollTop = chatDiv.scrollHeight;
 	});
-	
+
 	socket.on('patricleEffect',function(data){
 		var id = Math.random();
 		var effect = Effect(id, data.type, data.x, data.y, data.color);
 		effect.init();
 		EFFECTS_LIST[id] = effect;
-		console.log('Effects: ' + Object.keys(EFFECTS_LIST).length);
+		// console.log('Effects: ' + Object.keys(EFFECTS_LIST).length);
 	});
-	
+
 	document.onkeydown = function(event){
-		if(inGame){
+		if(inGame && document.activeElement.id != "chatInput"){
 			if(event.keyCode === 68 || event.keyCode === 70) // d
 				socket.emit('keyPress',{inputId:'right',state:true});
 			else if(event.keyCode === 83) // s
@@ -399,10 +659,14 @@ window.onload = function(){
 				socket.emit('keyPress',{inputId:'left',state:true});
 			else if(event.keyCode === 87) // w
 				socket.emit('keyPress',{inputId:'up',state:true});
+			else if(event. keyCode === 16) // shift
+				socket.emit('keyPress',{inputId:'shift',state:true});
+			else if(event. keyCode === 32) // shift
+				socket.emit('keyPress',{inputId:'space',state:true})
 		}
 	}
 	document.onkeyup = function(event){
-		if(inGame){
+		if(inGame && document.activeElement.id != "chatInput"){
 			if(event.keyCode === 68 || event.keyCode === 70) // d
 				socket.emit('keyPress',{inputId:'right',state:false});
 			else if(event.keyCode === 83) // s
@@ -411,24 +675,30 @@ window.onload = function(){
 				socket.emit('keyPress',{inputId:'left',state:false});
 			else if(event.keyCode === 87) // w
 				socket.emit('keyPress',{inputId:'up',state:false});
-		}
-	}
-	document.onmousemove = function(event){
-		if(inGame){
-			mouseX = event.pageX - gameDiv.offsetLeft;
-			mouseY = event.pageY - gameDiv.offsetTop;
-			var angle = Math.atan2(mouseY - posY, mouseX - posX) * 180 / Math.PI;
-			socket.emit('keyPress',{inputId:'angle',angle});
+			else if(event. keyCode === 16) // shift
+				socket.emit('keyPress',{inputId:'shift',state:false});
+			else if(event. keyCode === 32) // shift
+				socket.emit('keyPress',{inputId:'space',state:false})
 		}
 	}
 	document.onmousedown = function(event){
 		mouseX = event.pageX - gameDiv.offsetLeft;
 		mouseY = event.pageY - gameDiv.offsetTop;
+		var angle = Math.atan2(mouseY - posY, mouseX - posX) * 180 / Math.PI;
 		if(inGame && mouseX > 0 && mouseX < 1000 && mouseY > 0 && mouseY < 600){
-			socket.emit('keyPress',{inputId:'click'});
+			socket.emit('keyPress',{inputId:'click',angle});
+			if (AMMO > 0) {
+				(function () {
+					var audio = document.createElement("audio");
+					audio.src = "client/audio/fire_basic.mp3";
+					audio.addEventListener("ended", function () {
+					}, false);
+					audio.play();  
+				})();
+			}
 		}
 	}
-	
+
 	chatInput.onkeyup = function(e){
 		if(e.keyCode === 13){
 			socket.emit('chatMessage',{id:selfId,message:chatInput.value});
@@ -436,5 +706,12 @@ window.onload = function(){
 		}
 	};
 
-}	
+	document.getElementById("joinDiv-username").onkeyup = function(e){
+	    if(e.keyCode == 13) {
+	    	button = document.getElementById("joinDiv-button");
+	    	if (button.onclick) { button.onclick();	} else if (button.click) { button.click(); }
+	    }
+	};
+
+}
 </script>
